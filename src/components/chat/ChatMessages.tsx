@@ -22,7 +22,6 @@ export const ChatMessages = () => {
     }
   };
 
-  // Handle new messages
   useEffect(() => {
     const currentLength = messages.length;
     const hadNewMessage = currentLength > prevMessagesLengthRef.current;
@@ -33,14 +32,11 @@ export const ChatMessages = () => {
     }
   }, [messages]);
 
-  // Handle manual scrolling
   const handleScroll = () => {
     if (!viewportRef.current) return;
 
     const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
     const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-    
-    // Only enable auto-scroll when very close to bottom (within 20px)
     setShouldAutoScroll(distanceFromBottom < 20);
   };
 
@@ -54,7 +50,7 @@ export const ChatMessages = () => {
 
   return (
     <ScrollArea 
-      className="h-[calc(100vh-14rem)]"
+      className="h-full"
       onWheel={handleScroll}
     >
       <div 
@@ -97,4 +93,3 @@ export const ChatMessages = () => {
     </ScrollArea>
   );
 };
-

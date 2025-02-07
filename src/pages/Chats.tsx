@@ -6,9 +6,9 @@ import { ChatInterface } from "@/components/chat/ChatInterface";
 const Chats = () => {
   return (
     <MainLayout>
-      <div className="h-full">
+      <div className="h-full flex flex-col">
         <ScrollReveal>
-          <div className="flex items-center mb-4 px-2">
+          <div className="flex items-center p-3">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary 
                            bg-clip-text text-transparent">
@@ -21,11 +21,12 @@ const Chats = () => {
           </div>
         </ScrollReveal>
         
-        <ChatInterface />
+        <div className="flex-1 p-3 min-h-0">
+          <ChatInterface />
+        </div>
       </div>
     </MainLayout>
   );
 };
 
 export default Chats;
-
