@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
@@ -100,7 +99,7 @@ export const ChatInterface = () => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="h-[calc(100vh-2rem)] overflow-hidden rounded-lg border bg-background/50 backdrop-blur-sm"
+      className="min-h-[calc(100vh-8rem)] h-full rounded-lg border bg-background/50 backdrop-blur-sm"
     >
       <ResizablePanel defaultSize={20} minSize={15} maxSize={25} className="border-r">
         <ChatList />
