@@ -26,9 +26,9 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#2A3D66",
-          light: "#7098DA",
-          dark: "#1A2A4D",
+          DEFAULT: "#9b87f5",
+          light: "#b3a3f7",
+          dark: "#7E69AB",
         },
         accent: {
           DEFAULT: "#88C0A3",
@@ -36,41 +36,21 @@ export default {
           dark: "#669B84",
         },
         neutral: {
-          50: "#fafafa",
-          100: "#f5f5f5",
-          200: "#e5e5e5",
-          300: "#d4d4d4",
-          400: "#a3a3a3",
-          500: "#737373",
-          600: "#525252",
-          700: "#404040",
-          800: "#262626",
-          900: "#171717",
+          50: "#F8F9FC",
+          100: "#F1F3F9",
+          200: "#E2E7F0",
+          300: "#CBD3E3",
+          400: "#9BA7C0",
+          500: "#6B7A96",
+          600: "#4A5469",
+          700: "#2E3545",
+          800: "#1A1F2C",
+          900: "#0D1017",
         },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
+      },
+      backgroundImage: {
+        'gradient-elegant': 'linear-gradient(to right, #9b87f5, #7E69AB)',
+        'gradient-card': 'linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%)',
       },
       keyframes: {
         "fade-up": {

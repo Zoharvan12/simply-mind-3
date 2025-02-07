@@ -31,16 +31,16 @@ const Index = () => {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header Section */}
         <ScrollReveal>
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-elegant shadow-lg">
             <div>
-              <h1 className="text-3xl font-bold text-[#2A3D66]">Journal Entries</h1>
-              <p className="text-neutral-500 mt-1">Capture your thoughts and feelings</p>
+              <h1 className="text-3xl font-bold text-white">Journal Entries</h1>
+              <p className="text-white/80 mt-1">Capture your thoughts and feelings</p>
             </div>
             <Button
-              className="bg-[#88C0A3] hover:bg-[#88C0A3]/90"
+              className="bg-white/90 hover:bg-white text-primary-dark hover:text-primary-dark/90 shadow-lg hover:shadow-xl transition-all duration-300"
               onClick={() => setIsDialogOpen(true)}
             >
               <Plus className="h-5 w-5 mr-2" />
@@ -50,18 +50,20 @@ const Index = () => {
         </ScrollReveal>
 
         {/* Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
           {isLoading ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, index) => (
               <ScrollReveal key={index} delay={index * 100}>
-                <div className="h-[200px] rounded-lg bg-neutral-100 animate-pulse" />
+                <div className="h-[200px] rounded-lg bg-neutral-100/50 animate-pulse" />
               </ScrollReveal>
             ))
           ) : entries?.length === 0 ? (
             // Empty state
             <div className="col-span-full text-center py-12">
-              <p className="text-neutral-500">No journal entries yet. Create your first one!</p>
+              <div className="p-8 rounded-xl bg-white/50 backdrop-blur-sm border border-white/20 shadow-lg">
+                <p className="text-neutral-500 text-lg">No journal entries yet. Create your first one!</p>
+              </div>
             </div>
           ) : (
             // Journal entries

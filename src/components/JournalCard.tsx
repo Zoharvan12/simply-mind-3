@@ -9,10 +9,14 @@ interface JournalCardProps {
 
 export const JournalCard = ({ className, children }: JournalCardProps) => {
   return (
-    <Card className={cn(
-      "p-6 transition-all duration-200 hover:shadow-lg bg-white/80 backdrop-blur-sm border-transparent",
-      className
-    )}>
+    <Card 
+      className={cn(
+        "glass-card p-6 group hover:scale-[1.02] transition-all duration-300",
+        "before:absolute before:inset-0 before:-z-10 before:bg-gradient-elegant before:opacity-0 before:transition-opacity",
+        "hover:before:opacity-5",
+        className
+      )}
+    >
       {children}
     </Card>
   );
