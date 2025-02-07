@@ -125,6 +125,7 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
         throw new Error('User not authenticated');
       }
 
+      // Insert user message
       const { data: message, error: messageError } = await supabase
         .from('messages')
         .insert([{
@@ -140,19 +141,20 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
 
       set((state) => ({ messages: [...state.messages, message] }));
 
-      const { data: aiMessage, error: aiError } = await supabase
-        .from('messages')
-        .insert([{
-          chat_id: get().currentChatId,
-          role: 'ai',
-          content: 'This is a simulated AI response. The actual AI integration will be implemented later.'
-        }])
-        .select()
-        .single();
+      // Call the edge function for AI response
+      const { data: aiResponse, error: aiError } = await supabase.functions
+        .invoke('chat-with-context', {
+          body: {
+            content,
+            chatId: get().currentChatId
+          }
+        });
 
       if (aiError) throw aiError;
 
-      set((state) => ({ messages: [...state.messages, aiMessage] }));
+      // Fetch messages again to get the AI response with correct ID and timestamp
+      await get().fetchMessages(get().currentChatId!);
+
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
