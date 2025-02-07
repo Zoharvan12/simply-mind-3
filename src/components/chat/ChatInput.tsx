@@ -18,7 +18,7 @@ export const ChatInput = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -36,14 +36,11 @@ export const ChatInput = () => {
             Promise.resolve(markdown)
           }
           toolbarCommands={[]}
+          onKeyDown={handleKeyDown}
           classes={{
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
           }}
-        />
-        <textarea
-          className="hidden"
-          onKeyPress={handleKeyPress}
         />
         <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 
