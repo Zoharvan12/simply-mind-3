@@ -115,18 +115,21 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          message_count: number
           updated_at: string
         }
         Insert: {
           first_name?: string | null
           id: string
           last_name?: string | null
+          message_count?: number
           updated_at?: string
         }
         Update: {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          message_count?: number
           updated_at?: string
         }
         Relationships: []
