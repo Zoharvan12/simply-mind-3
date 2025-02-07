@@ -9,7 +9,6 @@ import "react-mde/lib/styles/css/react-mde-all.css";
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
   const { sendMessage } = useMessagesStore();
-  const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -31,16 +30,11 @@ export const ChatInput = () => {
         <ReactMde
           value={message}
           onChange={setMessage}
-          selectedTab={selectedTab}
-          onTabChange={setSelectedTab}
+          selectedTab="write"
           generateMarkdownPreview={markdown =>
             Promise.resolve(markdown)
           }
-          toolbarCommands={[
-            ["header", "bold", "italic"],
-            ["unordered-list", "ordered-list"],
-            ["quote", "code"]
-          ]}
+          toolbarCommands={[]}
           classes={{
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"

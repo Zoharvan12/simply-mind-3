@@ -34,12 +34,15 @@ export const ChatMessages = () => {
               message.role === 'user' ? "bg-primary text-white" : "glass-card"
             )}>
               <div className={cn(
-                "prose prose-sm max-w-none",
+                "prose prose-sm max-w-none whitespace-pre-wrap",
                 message.role === 'user' ? "prose-invert" : "prose-neutral"
               )}>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                  components={{
+                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>
+                  }}
                 >
                   {message.content}
                 </ReactMarkdown>
