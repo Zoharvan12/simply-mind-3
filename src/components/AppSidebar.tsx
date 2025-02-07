@@ -96,7 +96,7 @@ export function AppSidebar() {
         {/* Logo */}
         <div className="p-6">
           <img 
-            src="/lovable-uploads/5386d03f-f352-4adb-a83b-2ef20839b707.png" 
+            src="/lovable-uploads/e81ffaa3-2e41-4a38-9936-858ebf3a709a.png" 
             alt="SimplyMind Logo" 
             className="h-16 w-auto"
           />
