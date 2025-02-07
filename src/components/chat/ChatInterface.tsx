@@ -14,18 +14,18 @@ export const ChatInterface = () => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="min-h-[calc(100vh-12rem)] rounded-lg border bg-background/50 backdrop-blur-sm"
+      className="min-h-[calc(100vh-8rem)] rounded-lg border bg-background/50 backdrop-blur-sm shadow-sm"
     >
-      <ResizablePanel defaultSize={20} minSize={15} maxSize={25} className="border-r">
+      <ResizablePanel defaultSize={25} minSize={20} maxSize={30} className="border-r">
         <ChatList />
       </ResizablePanel>
       
       <ResizableHandle withHandle />
       
-      <ResizablePanel defaultSize={80}>
+      <ResizablePanel defaultSize={75}>
         <div className="flex h-full flex-col">
-          <div className="border-b p-4">
-            <h2 className="text-lg font-semibold text-[#2A3D66]">{chatTitle}</h2>
+          <div className="border-b px-4 py-3">
+            <h2 className="text-base font-medium text-[#2A3D66]">{chatTitle}</h2>
           </div>
           <div className="flex-1 overflow-hidden">
             <ChatMessages />
@@ -36,3 +36,4 @@ export const ChatInterface = () => {
     </ResizablePanelGroup>
   );
 };
+

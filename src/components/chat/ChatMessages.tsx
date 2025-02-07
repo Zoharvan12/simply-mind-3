@@ -54,24 +54,24 @@ export const ChatMessages = () => {
 
   return (
     <ScrollArea 
-      className="h-[calc(100vh-20rem)]"
+      className="h-[calc(100vh-14rem)]"
       onWheel={handleScroll}
     >
       <div 
-        className="space-y-4 p-4"
+        className="space-y-3 p-3"
         ref={viewportRef}
         onScroll={handleScroll}
       >
         {messages.map((message) => (
           <div key={message.id} className={cn("flex", message.role === 'user' ? "justify-end" : "justify-start")}>
             <div className={cn(
-              "max-w-[80%] p-3 rounded-lg",
+              "max-w-[80%] p-2.5 rounded-lg",
               message.role === 'user' ? "bg-primary text-white" : "glass-card"
             )}>
               {message.isLoading ? (
                 <div className="flex items-center space-x-2">
                   <Loader className="h-4 w-4 animate-spin" />
-                  <span className="text-sm">AI is thinking...</span>
+                  <span className="text-xs">AI is thinking...</span>
                 </div>
               ) : (
                 <div className={cn(
@@ -82,7 +82,7 @@ export const ChatMessages = () => {
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeRaw, rehypeSanitize]}
                     components={{
-                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>
+                      p: ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>
                     }}
                   >
                     {message.content}
@@ -97,3 +97,4 @@ export const ChatMessages = () => {
     </ScrollArea>
   );
 };
+

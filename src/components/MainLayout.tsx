@@ -10,10 +10,13 @@ interface MainLayoutProps {
 export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[#F1F0FB]">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-background to-white/50">
         <AppSidebar />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-3 transition-all duration-300 ease-in-out">
+          {children}
+        </main>
       </div>
     </SidebarProvider>
   );
 };
+

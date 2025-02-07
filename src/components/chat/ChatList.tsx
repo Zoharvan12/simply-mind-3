@@ -65,22 +65,22 @@ export const ChatList = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="p-6">
+      <div className="p-3">
         <Button 
-          className="w-full elegant-gradient text-lg font-medium rounded-xl py-6" 
+          className="w-full elegant-gradient text-base font-medium rounded-lg py-4" 
           onClick={handleNewChat}
         >
-          <Plus className="mr-2 h-5 w-5" />
+          <Plus className="mr-2 h-4 w-4" />
           New Chat
         </Button>
       </div>
-      <ScrollArea className="flex-1 px-4">
-        <div className="space-y-3 pb-6">
+      <ScrollArea className="flex-1 px-2">
+        <div className="space-y-2 pb-4">
           {chats.map((chat) => (
             <div 
               key={chat.id}
               className={cn(
-                "glass-card group relative cursor-pointer",
+                "glass-card group relative cursor-pointer py-3",
                 currentChatId === chat.id && "selected"
               )}
               onClick={(e) => {
@@ -97,14 +97,14 @@ export const ChatList = () => {
                   onBlur={() => handleRename(chat.id)}
                   onKeyDown={(e) => handleKeyDown(e, chat.id)}
                   className="w-full bg-transparent border-none focus:outline-none focus:ring-1 
-                           focus:ring-primary rounded px-2 py-1 text-base"
+                           focus:ring-primary rounded px-2 py-1 text-sm"
                   autoFocus
                 />
               ) : (
                 <>
-                  <div className="pr-16">
-                    <h3 className="font-medium text-base text-neutral-700">{chat.title}</h3>
-                    <p className="text-sm text-neutral-500 mt-2">
+                  <div className="pr-14">
+                    <h3 className="font-medium text-sm text-neutral-700 truncate">{chat.title}</h3>
+                    <p className="text-xs text-neutral-500 mt-1">
                       {new Date(chat.created_at).toLocaleDateString(undefined, {
                         year: 'numeric',
                         month: 'short',
@@ -112,9 +112,9 @@ export const ChatList = () => {
                       })}
                     </p>
                   </div>
-                  <div className="chat-actions absolute right-3 top-1/2 -translate-y-1/2 
+                  <div className="chat-actions absolute right-2 top-1/2 -translate-y-1/2 
                                 opacity-0 group-hover:opacity-100 transition-opacity 
-                                flex items-center gap-2">
+                                flex items-center gap-1.5">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -122,7 +122,7 @@ export const ChatList = () => {
                       }}
                       aria-label="Edit chat"
                     >
-                      <Edit2 className="h-4 w-4 text-primary/70 hover:text-primary transition-colors" />
+                      <Edit2 className="h-3.5 w-3.5 text-primary/70 hover:text-primary transition-colors" />
                     </button>
                     <button
                       onClick={(e) => {
@@ -131,7 +131,7 @@ export const ChatList = () => {
                       }}
                       aria-label="Delete chat"
                     >
-                      <Trash2 className="h-4 w-4 text-red-500/70 hover:text-red-500 transition-colors" />
+                      <Trash2 className="h-3.5 w-3.5 text-red-500/70 hover:text-red-500 transition-colors" />
                     </button>
                   </div>
                 </>
@@ -163,3 +163,4 @@ export const ChatList = () => {
     </div>
   );
 };
+
