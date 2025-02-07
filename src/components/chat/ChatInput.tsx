@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
+import { TextApi } from "react-mde/lib/definitions/types";
 
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
@@ -18,11 +19,12 @@ export const ChatInput = () => {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
+  const handleEnterCommand = {
+    name: 'send-message',
+    execute: ({ textApi }: { textApi: TextApi }) => {
       handleSendMessage();
-    }
+    },
+    keyCommand: 'enter',
   };
 
   return (
@@ -32,11 +34,13 @@ export const ChatInput = () => {
           value={message}
           onChange={setMessage}
           selectedTab="write"
-          onKeyDown={handleKeyDown}
           generateMarkdownPreview={markdown =>
             Promise.resolve(markdown)
           }
           toolbarCommands={[]}
+          commands={{
+            'send-message': handleEnterCommand
+          }}
           classes={{
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
