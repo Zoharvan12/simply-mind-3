@@ -31,7 +31,7 @@ export const ChatListItem = ({
     <div 
       key={chat.id}
       className={cn(
-        "glass-card group relative cursor-pointer py-3",
+        "glass-card group relative cursor-pointer py-3 w-full max-w-full",
         currentChatId === chat.id && "selected"
       )}
       onClick={(e) => {
@@ -52,15 +52,15 @@ export const ChatListItem = ({
           autoFocus
         />
       ) : (
-        <>
-          <div className="pr-14">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex-1 min-w-0 pr-3">
             <h3 
               className="font-medium text-sm text-neutral-700 truncate"
-              title={chat.title} // Show full title on hover
+              title={chat.title}
             >
-              {chat.title.length > 40 ? `${chat.title.substring(0, 40)}...` : chat.title}
+              {chat.title}
             </h3>
-            <p className="text-xs text-neutral-500 mt-1">
+            <p className="text-xs text-neutral-500 mt-1 truncate">
               {new Date(chat.created_at).toLocaleDateString(undefined, {
                 year: 'numeric',
                 month: 'short',
@@ -68,15 +68,15 @@ export const ChatListItem = ({
               })}
             </p>
           </div>
-          <div className="chat-actions absolute right-2 top-1/2 -translate-y-1/2 
-                        opacity-0 group-hover:opacity-100 transition-opacity 
-                        flex items-center gap-1.5">
+          <div className="chat-actions flex-shrink-0 opacity-0 group-hover:opacity-100 
+                        transition-opacity flex items-center gap-1.5 px-2">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onEditStart(chat);
               }}
               aria-label="Edit chat"
+              className="p-1"
             >
               <Edit2 className="h-3.5 w-3.5 text-primary/70 hover:text-primary transition-colors" />
             </button>
@@ -86,11 +86,12 @@ export const ChatListItem = ({
                 onDeleteStart(chat.id);
               }}
               aria-label="Delete chat"
+              className="p-1"
             >
               <Trash2 className="h-3.5 w-3.5 text-red-500/70 hover:text-red-500 transition-colors" />
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
