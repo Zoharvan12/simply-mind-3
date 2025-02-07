@@ -19,22 +19,20 @@ export const ChatInput = () => {
   };
 
   const commands = {
-    default: [
-      {
-        commands: [
-          {
-            handleKeyCommand: (e: KeyboardEvent) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-                return true;
-              }
-              return false;
-            }
-          }
-        ]
+    'enter-send': {
+      execute: (opts: { textArea: HTMLTextAreaElement }) => {
+        if (!opts.textArea.value.trim()) return;
+        handleSendMessage();
+        return true;
+      },
+      handleKeyCommand: (e: KeyboardEvent) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          return true;
+        }
+        return false;
       }
-    ]
+    }
   };
 
   return (
