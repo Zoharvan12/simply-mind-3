@@ -17,7 +17,7 @@ interface ChatControlsProps {
 
 export const ChatControls = ({ onSend }: ChatControlsProps) => {
   const { role } = useUserRole();
-  const [monthlyMessages, setMonthlyMessages] = useState(0);
+  const [monththlyMessages] = useState(0);
   const isLimitReached = role === 'free' && monthlyMessages >= 50;
 
   useEffect(() => {
@@ -32,6 +32,7 @@ export const ChatControls = ({ onSend }: ChatControlsProps) => {
         .single();
 
       if (!error && profile) {
+        console.log('Initial message count:', profile.monthly_messages);
         setMonthlyMessages(profile.monthly_messages);
       }
     };
@@ -40,7 +41,7 @@ export const ChatControls = ({ onSend }: ChatControlsProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      // Subscribe to ALL profile changes for the current user
+      console.log('Setting up realtime subscription for user:', user.id);
       const channel = supabase
         .channel('profile_changes')
         .on(
@@ -63,7 +64,6 @@ export const ChatControls = ({ onSend }: ChatControlsProps) => {
       return channel;
     };
 
-    // Initialize both the message count and realtime subscription
     fetchMessageCount();
     let channel: ReturnType<typeof supabase.channel>;
     
@@ -81,7 +81,10 @@ export const ChatControls = ({ onSend }: ChatControlsProps) => {
   }, [role]);
 
   const handleSend = () => {
-    if (isLimitReached) return;
+    if (isLimitReached) {
+      console.log('Message limit reached, blocking send');
+      return;
+    }
     onSend();
   };
 

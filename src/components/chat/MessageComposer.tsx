@@ -26,6 +26,7 @@ const CustomTextArea = (props: any) => {
         .single();
 
       if (profile) {
+        console.log('Initial message count (textarea):', profile.monthly_messages);
         setMonthlyMessages(profile.monthly_messages);
       }
     };
@@ -34,6 +35,7 @@ const CustomTextArea = (props: any) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
+      console.log('Setting up realtime subscription for textarea:', user.id);
       const channel = supabase
         .channel('profile_changes')
         .on(
@@ -46,6 +48,7 @@ const CustomTextArea = (props: any) => {
           },
           (payload) => {
             if (payload.new && 'monthly_messages' in payload.new) {
+              console.log('Profile updated (textarea):', payload.new);
               setMonthlyMessages(payload.new.monthly_messages);
             }
           }
@@ -75,8 +78,11 @@ const CustomTextArea = (props: any) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (!isLimitReached) {
+        console.log('Sending message via Enter key, current count:', monthlyMessages);
         const event = new Event('custom-send');
         window.dispatchEvent(event);
+      } else {
+        console.log('Message limit reached, blocking Enter key send');
       }
     }
   };
