@@ -1,7 +1,7 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMessagesStore } from "@/stores/useMessagesStore";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -12,10 +12,32 @@ import { Loader } from "lucide-react";
 export const ChatMessages = () => {
   const { messages, isLoading } = useMessagesStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const prevMessagesLengthRef = useRef(messages.length);
 
+  // Handle auto-scrolling based on new messages and scroll position
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const currentLength = messages.length;
+    const hadNewMessage = currentLength > prevMessagesLengthRef.current;
+    prevMessagesLengthRef.current = currentLength;
+
+    // Only scroll if there's a new message and auto-scroll is enabled
+    if (hadNewMessage && shouldAutoScroll && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, shouldAutoScroll]);
+
+  // Track scroll position to determine if we should auto-scroll
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    if (!scrollAreaRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+    
+    // Enable auto-scroll when user is near bottom (within 100px)
+    setShouldAutoScroll(distanceFromBottom < 100);
+  };
 
   if (isLoading) {
     return (
@@ -26,7 +48,11 @@ export const ChatMessages = () => {
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-20rem)]">
+    <ScrollArea 
+      className="h-[calc(100vh-20rem)]"
+      onWheel={handleScroll}
+      ref={scrollAreaRef}
+    >
       <div className="space-y-4 p-4">
         {messages.map((message) => (
           <div key={message.id} className={cn("flex", message.role === 'user' ? "justify-end" : "justify-start")}>
