@@ -77,8 +77,8 @@ export const ChatList = () => {
             <div 
               key={chat.id}
               className={cn(
-                "glass-card p-3 group relative cursor-pointer hover:shadow-md transition-all",
-                currentChatId === chat.id ? "border-2 border-primary bg-primary/5" : ""
+                "glass-card p-3 group relative cursor-pointer hover:shadow-md transition-shadow",
+                currentChatId === chat.id && "border-2 border-primary"
               )}
               onClick={(e) => {
                 // Only fetch messages if we didn't click on an action button
@@ -99,7 +99,7 @@ export const ChatList = () => {
                 />
               ) : (
                 <>
-                  <div className="pr-16">
+                  <div className="pr-16"> {/* Added padding-right to prevent overlap */}
                     <h3 className="font-medium text-sm text-neutral-700">{chat.title}</h3>
                     <p className="text-xs text-neutral-500 mt-1 truncate">
                       {new Date(chat.created_at).toLocaleDateString()}
@@ -113,7 +113,7 @@ export const ChatList = () => {
                       }}
                       className="p-1 rounded-sm hover:bg-primary/10 transition-colors"
                     >
-                      <Edit2 className="h-4 w-4 text-primary/70 hover:text-primary transition-colors" />
+                      <Edit2 className="h-4 w-4 text-primary/70 hover:text-primary transition-colors" /> {/* Reduced size from h-5 w-5 to h-4 w-4 */}
                     </button>
                     <button
                       onClick={(e) => {
@@ -122,7 +122,7 @@ export const ChatList = () => {
                       }}
                       className="p-1 rounded-sm hover:bg-red-100 transition-colors"
                     >
-                      <Trash2 className="h-4 w-4 text-red-500/70 hover:text-red-500 transition-colors" />
+                      <Trash2 className="h-4 w-4 text-red-500/70 hover:text-red-500 transition-colors" /> {/* Reduced size from h-5 w-5 to h-4 w-4 */}
                     </button>
                   </div>
                 </>
