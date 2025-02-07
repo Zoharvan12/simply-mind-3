@@ -1,7 +1,4 @@
-
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus } from "lucide-react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +6,7 @@ import { Chat } from "@/stores/messages/types";
 import { toast } from "sonner";
 import { ChatListItem } from "./ChatListItem";
 import { DeleteChatDialog } from "./DeleteChatDialog";
+import { ChatListHeader } from "./ChatListHeader";
 
 export const ChatList = () => {
   const { chats, fetchChats, createNewChat, fetchMessages, currentChatId, renameChat, deleteChat, updateChat } = useMessagesStore();
@@ -19,7 +17,6 @@ export const ChatList = () => {
   useEffect(() => {
     fetchChats();
 
-    // Set up real-time subscription for chat updates
     const channel = supabase
       .channel('public:chats')
       .on(
@@ -52,7 +49,6 @@ export const ChatList = () => {
     };
   }, [fetchChats, updateChat]);
 
-  // Type guard to validate chat payload
   const isValidChat = (chat: any): chat is Chat => {
     return (
       typeof chat === 'object' &&
@@ -103,15 +99,7 @@ export const ChatList = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="p-3">
-        <Button 
-          className="w-full elegant-gradient text-base font-medium rounded-lg py-4" 
-          onClick={handleNewChat}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          New Chat
-        </Button>
-      </div>
+      <ChatListHeader onNewChat={handleNewChat} />
       <ScrollArea className="flex-1 px-2">
         <div className="space-y-2 pb-4">
           {chats.map((chat) => (
