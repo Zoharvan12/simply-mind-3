@@ -70,6 +70,8 @@ Based on this context, provide supportive and relevant responses. If the user se
 
     // If it's the first message, generate a title
     if (isFirstMessage) {
+      console.log('Generating title for first message...');
+      
       const titleResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -94,8 +96,9 @@ Based on this context, provide supportive and relevant responses. If the user se
 
       const titleData = await titleResponse.json();
       const generatedTitle = titleData.choices[0].message.content.trim();
+      console.log('Generated title:', generatedTitle);
 
-      // Update chat title with REPLICA IDENTITY FULL to enable real-time updates
+      // Update chat title
       const { error: updateError } = await supabase
         .from('chats')
         .update({ title: generatedTitle })
@@ -103,7 +106,10 @@ Based on this context, provide supportive and relevant responses. If the user se
 
       if (updateError) {
         console.error('Error updating chat title:', updateError);
+        throw new Error('Failed to update chat title');
       }
+      
+      console.log('Successfully updated chat title');
     }
 
     // Get AI response

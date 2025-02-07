@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Edit2, Trash2 } from "lucide-react";
@@ -15,6 +16,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { Chat } from "@/stores/messages/types";
+import { toast } from "sonner";
 
 export const ChatList = () => {
   const { chats, fetchChats, createNewChat, fetchMessages, currentChatId, renameChat, deleteChat, updateChat } = useMessagesStore();
@@ -36,24 +39,46 @@ export const ChatList = () => {
           table: 'chats'
         },
         (payload) => {
-          if (payload.new) {
-            updateChat(payload.new);
+          console.log('Received chat update:', payload);
+          if (payload.new && isValidChat(payload.new)) {
+            console.log('Updating chat:', payload.new);
+            updateChat(payload.new as Chat);
+          } else {
+            console.error('Invalid chat update payload:', payload);
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to chat updates');
+        }
+      });
 
     return () => {
+      console.log('Cleaning up chat subscription');
       supabase.removeChannel(channel);
     };
   }, [fetchChats, updateChat]);
+
+  // Type guard to validate chat payload
+  const isValidChat = (chat: any): chat is Chat => {
+    return (
+      typeof chat === 'object' &&
+      chat !== null &&
+      typeof chat.id === 'string' &&
+      typeof chat.title === 'string' &&
+      typeof chat.created_at === 'string'
+    );
+  };
 
   const handleNewChat = async () => {
     try {
       const newChatId = await createNewChat();
       fetchMessages(newChatId);
     } catch (error) {
-      // Error is handled in the store
+      console.error('Error creating new chat:', error);
+      toast.error('Failed to create new chat');
     }
   };
 
