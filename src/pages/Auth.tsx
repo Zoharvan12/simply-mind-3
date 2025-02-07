@@ -27,7 +27,7 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { error: signUpError, data } = await supabase.auth.signUp({
           email,
           password,
         });
@@ -38,7 +38,7 @@ export default function Auth() {
         const { error: updateError } = await supabase
           .from('profiles')
           .update({ first_name: firstName, last_name: lastName })
-          .eq('id', (await supabase.auth.getUser()).data.user?.id);
+          .eq('id', data.user?.id);
 
         if (updateError) throw updateError;
 
@@ -63,6 +63,25 @@ export default function Auth() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     }
   };
 
@@ -153,7 +172,12 @@ export default function Auth() {
           <span className="text-xs text-muted-foreground">Or</span>
         </div>
 
-        <Button type="button" variant="outline" disabled={isLoading}>
+        <Button 
+          type="button" 
+          variant="outline" 
+          disabled={isLoading}
+          onClick={handleGoogleSignIn}
+        >
           Continue with Google
         </Button>
 
