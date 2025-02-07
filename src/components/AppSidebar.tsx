@@ -21,7 +21,7 @@ const menuItems = [
   {
     title: "Personal Inputs",
     icon: Home,
-    href: "/",
+    href: "/dashboard",
   },
   {
     title: "Chats",
