@@ -1,50 +1,52 @@
 
-import { Sparkles, Lightbulb, Heart } from "lucide-react";
-import { Hero } from "@/components/Hero";
-import { FeatureCard } from "@/components/FeatureCard";
+import { Plus } from "lucide-react";
+import { MainLayout } from "@/components/MainLayout";
+import { JournalCard } from "@/components/JournalCard";
+import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ScrollReveal";
 
 const Index = () => {
-  const features = [
-    {
-      icon: <Sparkles className="h-8 w-8" />,
-      title: "Premium Design",
-      description: "Carefully crafted with attention to every detail for a premium user experience.",
-    },
-    {
-      icon: <Lightbulb className="h-8 w-8" />,
-      title: "Intuitive Interface",
-      description: "Simple yet powerful interface that makes your application a joy to use.",
-    },
-    {
-      icon: <Heart className="h-8 w-8" />,
-      title: "Made with Love",
-      description: "Built with passion and care to ensure the best possible experience.",
-    },
+  const dummyEntries = [
+    { id: 1, title: "Morning Reflection", content: "Started the day with meditation..." },
+    { id: 2, title: "Afternoon Notes", content: "Had a productive meeting..." },
+    { id: 3, title: "Evening Thoughts", content: "Feeling grateful for..." },
+    { id: 4, title: "Daily Goals", content: "Completed most tasks..." },
+    { id: 5, title: "Mindful Moments", content: "Took time to breathe..." },
+    { id: 6, title: "Future Plans", content: "Planning for tomorrow..." },
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <Hero />
-      
-      <section className="py-24">
-        <div className="container px-4">
-          <ScrollReveal>
-            <h2 className="text-center text-3xl font-bold text-neutral-800 md:text-4xl">
-              Features
-            </h2>
-          </ScrollReveal>
-          
-          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
-              <ScrollReveal key={feature.title} delay={index * 100}>
-                <FeatureCard {...feature} />
-              </ScrollReveal>
-            ))}
+    <MainLayout>
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <ScrollReveal>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-[#2A3D66]">Journal Entries</h1>
+              <p className="text-neutral-500 mt-1">Capture your thoughts and feelings</p>
+            </div>
+            <Button className="bg-[#88C0A3] hover:bg-[#88C0A3]/90">
+              <Plus className="h-5 w-5 mr-2" />
+              New Entry
+            </Button>
           </div>
+        </ScrollReveal>
+
+        {/* Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {dummyEntries.map((entry, index) => (
+            <ScrollReveal key={entry.id} delay={index * 100}>
+              <JournalCard className="h-[200px] group cursor-pointer">
+                <h3 className="text-lg font-semibold text-[#2A3D66] mb-2 group-hover:text-[#7098DA] transition-colors">
+                  {entry.title}
+                </h3>
+                <p className="text-neutral-600 line-clamp-4">{entry.content}</p>
+              </JournalCard>
+            </ScrollReveal>
+          ))}
         </div>
-      </section>
-    </div>
+      </div>
+    </MainLayout>
   );
 };
 

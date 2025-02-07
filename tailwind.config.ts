@@ -25,6 +25,16 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "#2A3D66",
+          light: "#7098DA",
+          dark: "#1A2A4D",
+        },
+        accent: {
+          DEFAULT: "#88C0A3",
+          light: "#A8D4BE",
+          dark: "#669B84",
+        },
         neutral: {
           50: "#fafafa",
           100: "#f5f5f5",
@@ -36,15 +46,6 @@ export default {
           700: "#404040",
           800: "#262626",
           900: "#171717",
-        },
-        accent: {
-          light: "#f0f9ff",
-          default: "#e0f2fe",
-          dark: "#bae6fd",
-        },
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
