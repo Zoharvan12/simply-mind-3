@@ -78,28 +78,38 @@ const AdminPanel = () => {
       // Fetch statistics
       const { data: statsData, error: statsError } = await supabase.rpc('get_user_statistics');
       if (statsError) throw statsError;
-      setStats(statsData);
+      setStats(statsData as UserStats);
 
-      // Fetch users
+      // Fetch users with a different query approach
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select(`
           id,
           first_name,
           last_name,
-          auth.users!inner(email, created_at),
-          user_roles!inner(role)
-        `);
+          email:auth_users(email),
+          role:user_roles(role),
+          created_at:auth_users(created_at)
+        `)
+        .returns<{
+          id: string;
+          first_name: string | null;
+          last_name: string | null;
+          email: { email: string }[];
+          role: { role: 'free' | 'premium' | 'admin' }[];
+          created_at: { created_at: string }[];
+        }[]>();
 
       if (profilesError) throw profilesError;
 
-      const formattedUsers = profiles.map((profile: any) => ({
+      // Transform the data to match our UserData interface
+      const formattedUsers: UserData[] = profiles.map((profile) => ({
         id: profile.id,
-        email: profile.auth_users.email,
+        email: profile.email[0]?.email ?? '',
         first_name: profile.first_name,
         last_name: profile.last_name,
-        role: profile.user_roles.role,
-        created_at: profile.auth_users.created_at,
+        role: profile.role[0]?.role ?? 'free',
+        created_at: profile.created_at[0]?.created_at ?? new Date().toISOString(),
       }));
 
       setUsers(formattedUsers);
@@ -329,3 +339,4 @@ const AdminPanel = () => {
 };
 
 export default AdminPanel;
+
