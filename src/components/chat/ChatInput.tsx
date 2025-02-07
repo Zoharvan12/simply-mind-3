@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import type { GetIcon, ICommand } from "react-mde";
+import type { Command } from "react-mde";
 
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
@@ -19,7 +19,7 @@ export const ChatInput = () => {
     }
   };
 
-  const handleEnterCommand: ICommand = {
+  const handleEnterCommand: Command = {
     name: 'send-message',
     execute: () => {
       handleSendMessage();
