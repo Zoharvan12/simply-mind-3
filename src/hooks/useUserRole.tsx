@@ -4,6 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 export type UserRole = 'admin' | 'free' | 'premium';
 
+const isValidUserRole = (role: any): role is UserRole => {
+  return role === 'admin' || role === 'free' || role === 'premium';
+};
+
 export function useUserRole() {
   const [role, setRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,16 +34,24 @@ export function useUserRole() {
 
         if (rpcError) throw rpcError;
         
-        // Set the role from the database
-        const userRole = roleData as UserRole;
-        setRole(userRole);
+        // Validate role data
+        if (!roleData || !isValidUserRole(roleData)) {
+          console.error('Invalid role received:', roleData);
+          throw new Error('Invalid role received from server');
+        }
+
+        // Set the validated role
+        setRole(roleData);
         
-        // Set admin status based on the role
-        setIsAdmin(userRole === 'admin');
+        // Set admin status only if role is explicitly 'admin'
+        const isUserAdmin = roleData === 'admin';
+        setIsAdmin(isUserAdmin);
 
       } catch (err: any) {
         console.error('Error fetching user role:', err);
         setError(err.message);
+        setRole(null);
+        setIsAdmin(false);
       } finally {
         setIsLoading(false);
       }
