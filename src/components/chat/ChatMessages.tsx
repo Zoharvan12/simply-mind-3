@@ -12,9 +12,9 @@ import { Loader } from "lucide-react";
 export const ChatMessages = () => {
   const { messages, isLoading } = useMessagesStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const prevMessagesLengthRef = useRef(messages.length);
+  const [scrollPosition, setScrollPosition] = useState({ top: 0, height: 0 });
 
   // Handle auto-scrolling based on new messages and scroll position
   useEffect(() => {
@@ -24,19 +24,21 @@ export const ChatMessages = () => {
 
     // Only scroll if there's a new message and auto-scroll is enabled
     if (hadNewMessage && shouldAutoScroll && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      const scrollContainer = messagesEndRef.current.parentElement;
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
     }
   }, [messages, shouldAutoScroll]);
 
-  // Track scroll position to determine if we should auto-scroll
-  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    if (!scrollAreaRef.current) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+  // Handle scroll position changes
+  const handleScrollPositionChange = ({ scrollTop, scrollHeight }: { scrollTop: number, scrollHeight: number }) => {
+    setScrollPosition({ top: scrollTop, height: scrollHeight });
     
-    // Enable auto-scroll when user is near bottom (within 100px)
-    setShouldAutoScroll(distanceFromBottom < 100);
+    // Calculate if we're near bottom (within 100px or 10% of container height)
+    const distanceFromBottom = scrollHeight - scrollTop;
+    const threshold = Math.min(100, scrollHeight * 0.1);
+    setShouldAutoScroll(distanceFromBottom <= threshold);
   };
 
   if (isLoading) {
@@ -50,8 +52,7 @@ export const ChatMessages = () => {
   return (
     <ScrollArea 
       className="h-[calc(100vh-20rem)]"
-      onWheel={handleScroll}
-      ref={scrollAreaRef}
+      onScrollPositionChange={handleScrollPositionChange}
     >
       <div className="space-y-4 p-4">
         {messages.map((message) => (
