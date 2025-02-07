@@ -21,14 +21,11 @@ export const ChatInput = () => {
 
   const handleEnterCommand: Command = {
     name: 'send-message',
-    execute: (api) => {
-      const currentEvent = api.originalEvent as KeyboardEvent;
-      if (currentEvent.key === 'Enter' && !currentEvent.shiftKey) {
-        currentEvent.preventDefault();
+    execute: (options) => {
+      if (options.event?.key === 'Enter' && !options.event?.shiftKey) {
+        options.event.preventDefault();
         handleSendMessage();
-        return true;
       }
-      return false;
     },
     keyCommand: 'enter',
   };
