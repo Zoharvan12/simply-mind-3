@@ -89,9 +89,6 @@ export const ChatMessages = () => {
                   </ReactMarkdown>
                 </div>
               )}
-              <div className="text-xs mt-1 opacity-70">
-                {new Date(message.created_at).toLocaleTimeString()}
-              </div>
             </div>
           </div>
         ))}
