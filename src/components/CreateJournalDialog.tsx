@@ -15,6 +15,7 @@ import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { EmotionEmoji } from "./EmotionEmoji";
 
 interface CreateJournalDialogProps {
   open: boolean;
@@ -43,7 +44,6 @@ export function CreateJournalDialog({
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const { toast } = useToast();
 
-  // Populate form when editing and dialog opens
   useEffect(() => {
     if (open && isEditing && editEntry) {
       setTitle(editEntry.title);
@@ -52,7 +52,6 @@ export function CreateJournalDialog({
     }
   }, [open, isEditing, editEntry]);
 
-  // Reset form only when closing after successful submission
   useEffect(() => {
     if (!open && hasSubmitted) {
       setTitle("");
@@ -74,7 +73,6 @@ export function CreateJournalDialog({
       }
 
       if (isEditing && editEntry) {
-        // Update existing entry
         const { error } = await supabase
           .from("journal_entries")
           .update({
@@ -91,7 +89,6 @@ export function CreateJournalDialog({
           description: "Journal entry updated successfully",
         });
       } else {
-        // Create new entry
         const { error } = await supabase.from("journal_entries").insert({
           title,
           content,
@@ -153,18 +150,21 @@ export function CreateJournalDialog({
                 required
               />
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-4">
               <Label>Emotion Rating (1-10)</Label>
-              <div className="flex items-center gap-4">
-                <Slider
-                  value={emotionRating}
-                  onValueChange={setEmotionRating}
-                  min={1}
-                  max={10}
-                  step={1}
-                  className="flex-1"
-                />
-                <span className="w-12 text-center font-medium">{emotionRating[0]}</span>
+              <div className="flex flex-col items-center gap-4">
+                <EmotionEmoji rating={emotionRating[0]} />
+                <div className="flex items-center gap-4 w-full">
+                  <Slider
+                    value={emotionRating}
+                    onValueChange={setEmotionRating}
+                    min={1}
+                    max={10}
+                    step={1}
+                    className="flex-1"
+                  />
+                  <span className="w-12 text-center font-medium">{emotionRating[0]}</span>
+                </div>
               </div>
             </div>
           </div>
