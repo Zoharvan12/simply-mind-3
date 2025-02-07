@@ -44,7 +44,23 @@ const AdminPanel = () => {
     const checkAdminAccess = async () => {
       const { data: isAdmin, error } = await supabase.rpc('is_admin');
       
-      if (error || !isAdmin) {
+      if (error) {
+        console.error('Error checking admin status:', error);
+        toast({
+          title: "Error",
+          description: "Failed to verify admin access",
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
+      
+      if (!isAdmin) {
+        toast({
+          title: "Access Denied",
+          description: "You do not have admin privileges",
+          variant: "destructive",
+        });
         navigate('/');
         return;
       }
@@ -57,17 +73,31 @@ const AdminPanel = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch statistics using the updated RPC function
+      // Fetch statistics
       const { data: statsData, error: statsError } = await supabase.rpc('get_user_statistics');
-      if (statsError) throw statsError;
+      if (statsError) {
+        console.error('Error fetching statistics:', statsError);
+        throw statsError;
+      }
       setStats(statsData as UserStats);
 
-      // Fetch users using the new admin_user_list function
+      // Fetch users with detailed error logging
       const { data: userData, error: userError } = await supabase.rpc('get_admin_user_list');
-      if (userError) throw userError;
+      if (userError) {
+        console.error('Error fetching user list:', userError);
+        throw userError;
+      }
 
-      // Transform the data to match our UserData interface
-      const formattedUsers: UserData[] = userData.map((user) => ({
+      console.log('Fetched user data:', userData); // Debug log
+
+      if (!userData) {
+        console.warn('No user data returned');
+        setUsers([]);
+        return;
+      }
+
+      // Transform and validate the data
+      const formattedUsers: UserData[] = userData.map((user: any) => ({
         id: user.id,
         email: user.email || '',
         first_name: user.first_name,
@@ -76,6 +106,7 @@ const AdminPanel = () => {
         created_at: user.created_at,
       }));
 
+      console.log('Formatted users:', formattedUsers); // Debug log
       setUsers(formattedUsers);
     } catch (error) {
       console.error('Error fetching data:', error);
