@@ -31,7 +31,7 @@ export const ChatListItem = ({
     <div 
       key={chat.id}
       className={cn(
-        "glass-card group mx-2 relative cursor-pointer py-3 mb-2",
+        "glass-card group relative cursor-pointer py-3",
         currentChatId === chat.id && "selected"
       )}
       onClick={(e) => {
@@ -52,8 +52,8 @@ export const ChatListItem = ({
           autoFocus
         />
       ) : (
-        <div className="flex items-start justify-between w-full px-2">
-          <div className="flex-1 min-w-0 pr-14">
+        <div className="flex items-start justify-between px-2">
+          <div className="flex-1 min-w-0 pr-16"> {/* Added min-w-0 to allow truncation */}
             <h3 className="font-medium text-sm text-neutral-700 truncate">
               {chat.title}
             </h3>
@@ -67,8 +67,8 @@ export const ChatListItem = ({
           </div>
           <div className="chat-actions absolute right-2 top-1/2 -translate-y-1/2 
                         opacity-0 group-hover:opacity-100 transition-opacity 
-                        flex items-center gap-1 bg-white/50 backdrop-blur-sm 
-                        rounded-md px-1 z-10">
+                        flex items-center gap-1.5 bg-white/50 backdrop-blur-sm 
+                        rounded-md px-1">
             <button
               onClick={(e) => {
                 e.stopPropagation();
