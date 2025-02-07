@@ -99,10 +99,12 @@ export const ChatList = () => {
                 />
               ) : (
                 <>
-                  <h3 className="font-medium text-sm text-neutral-700">{chat.title}</h3>
-                  <p className="text-xs text-neutral-500 mt-1 truncate">
-                    {new Date(chat.created_at).toLocaleDateString()}
-                  </p>
+                  <div className="pr-16"> {/* Added padding-right to prevent overlap */}
+                    <h3 className="font-medium text-sm text-neutral-700">{chat.title}</h3>
+                    <p className="text-xs text-neutral-500 mt-1 truncate">
+                      {new Date(chat.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
                   <div className="chat-actions absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                     <button
                       onClick={(e) => {
@@ -111,7 +113,7 @@ export const ChatList = () => {
                       }}
                       className="p-1 rounded-sm hover:bg-primary/10 transition-colors"
                     >
-                      <Edit2 className="h-5 w-5 text-primary/70 hover:text-primary transition-colors" />
+                      <Edit2 className="h-4 w-4 text-primary/70 hover:text-primary transition-colors" /> {/* Reduced size from h-5 w-5 to h-4 w-4 */}
                     </button>
                     <button
                       onClick={(e) => {
@@ -120,7 +122,7 @@ export const ChatList = () => {
                       }}
                       className="p-1 rounded-sm hover:bg-red-100 transition-colors"
                     >
-                      <Trash2 className="h-5 w-5 text-red-500/70 hover:text-red-500 transition-colors" />
+                      <Trash2 className="h-4 w-4 text-red-500/70 hover:text-red-500 transition-colors" /> {/* Reduced size from h-5 w-5 to h-4 w-4 */}
                     </button>
                   </div>
                 </>
