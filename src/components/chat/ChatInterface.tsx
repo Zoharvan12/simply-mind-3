@@ -2,8 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Mic, Plus } from "lucide-react";
+import { Mic, Plus, Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { KeyboardEvent, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const ChatList = () => {
@@ -30,8 +31,8 @@ const ChatList = () => {
 
 const ChatMessages = () => {
   return (
-    <ScrollArea className="h-[calc(100vh-13rem)] px-4">
-      <div className="space-y-4 pb-4">
+    <ScrollArea className="flex-1">
+      <div className="space-y-4 p-4">
         <div className="flex justify-end">
           <div className="bg-primary text-white rounded-lg p-3 max-w-[80%]">
             <p>Hello! How can I help you today?</p>
@@ -48,21 +49,48 @@ const ChatMessages = () => {
 };
 
 const ChatInput = () => {
+  const [message, setMessage] = useState("");
+
+  const handleSendMessage = () => {
+    if (message.trim()) {
+      console.log("Sending message:", message);
+      setMessage("");
+    }
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   return (
-    <div className="relative p-4">
+    <div className="p-4 border-t">
       <div className="relative">
         <Textarea 
           placeholder="Type your message..." 
-          className="pr-12 resize-none glass-card" 
+          className="pr-24 resize-none glass-card" 
           rows={2}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyPress}
         />
-        <Button 
-          size="icon" 
-          variant="ghost" 
-          className="absolute right-2 top-1/2 -translate-y-1/2"
-        >
-          <Mic className="h-5 w-5 text-neutral-500" />
-        </Button>
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+          <Button 
+            size="icon" 
+            variant="ghost"
+          >
+            <Mic className="h-5 w-5 text-neutral-500" />
+          </Button>
+          <Button 
+            size="icon"
+            onClick={handleSendMessage}
+            className="bg-primary text-white hover:bg-primary/90"
+          >
+            <Send className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -72,7 +100,7 @@ export const ChatInterface = () => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="h-[calc(100vh-2rem)] rounded-lg border bg-background/50 backdrop-blur-sm"
+      className="h-[calc(100vh-2rem)] overflow-hidden rounded-lg border bg-background/50 backdrop-blur-sm"
     >
       <ResizablePanel defaultSize={20} minSize={15} maxSize={25} className="border-r">
         <ChatList />
