@@ -44,7 +44,7 @@
 }
 
 .glass-card {
-  @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md transition-all duration-300;
+  @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300;
 }
 
 .elegant-gradient {
