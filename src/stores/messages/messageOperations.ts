@@ -31,6 +31,26 @@ export const sendMessage = async (
       throw new Error('User not authenticated');
     }
 
+    // Create optimistic message
+    const optimisticMessage: Message = {
+      id: crypto.randomUUID(),
+      chat_id: chatId,
+      user_id: user.id,
+      role: 'user',
+      content,
+      created_at: new Date().toISOString(),
+    };
+
+    // Create AI thinking message
+    const thinkingMessage: Message = {
+      id: crypto.randomUUID(),
+      chat_id: chatId,
+      role: 'ai',
+      content: '...',
+      created_at: new Date().toISOString(),
+      status: 'pending'
+    };
+
     const { data: message, error: messageError } = await supabase
       .from('messages')
       .insert([{
@@ -57,11 +77,14 @@ export const sendMessage = async (
 
     if (aiError) throw aiError;
 
-    return { message, isFirstMessage };
+    return { 
+      message: optimisticMessage, 
+      thinkingMessage,
+      isFirstMessage 
+    };
   } catch (error) {
     console.error('Error sending message:', error);
     toast.error('Failed to send message');
     throw error;
   }
 };
-

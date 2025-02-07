@@ -33,20 +33,28 @@ export const ChatMessages = () => {
               "max-w-[80%] p-3 rounded-lg",
               message.role === 'user' ? "bg-primary text-white" : "glass-card"
             )}>
-              <div className={cn(
-                "prose prose-sm max-w-none whitespace-pre-wrap",
-                message.role === 'user' ? "prose-invert" : "prose-neutral"
-              )}>
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw, rehypeSanitize]}
-                  components={{
-                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>
-                  }}
-                >
-                  {message.content}
-                </ReactMarkdown>
-              </div>
+              {message.status === 'pending' ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+                </div>
+              ) : (
+                <div className={cn(
+                  "prose prose-sm max-w-none whitespace-pre-wrap",
+                  message.role === 'user' ? "prose-invert" : "prose-neutral"
+                )}>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              )}
               <div className="text-xs mt-1 opacity-70">
                 {new Date(message.created_at).toLocaleTimeString()}
               </div>

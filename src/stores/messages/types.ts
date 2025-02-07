@@ -4,6 +4,7 @@ export interface Message {
   role: 'user' | 'ai';
   content: string;
   created_at: string;
+  status?: 'pending' | 'error';
 }
 
 export interface Chat {
@@ -18,4 +19,3 @@ export interface MessagesState {
   currentChatId: string | null;
   isLoading: boolean;
 }
-
