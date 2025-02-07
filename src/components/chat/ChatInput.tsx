@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import type { TextApi } from "react-mde";
 
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
@@ -19,21 +18,10 @@ export const ChatInput = () => {
     }
   };
 
-  const handleEnterCommand = {
-    execute: (api: TextApi) => {
-      const textarea = api.textAreaRef;
-      if (textarea) {
-        const event = textarea.ownerDocument.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-        handleSendMessage();
-      }
-    },
-    handleKeyCommand: (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSendMessage();
-        return true;
-      }
-      return false;
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
@@ -48,8 +36,8 @@ export const ChatInput = () => {
             Promise.resolve(markdown)
           }
           toolbarCommands={[]}
-          commands={{
-            'enter': handleEnterCommand
+          textAreaProps={{
+            onKeyDown: handleKeyDown
           }}
           classes={{
             reactMde: "border-none bg-transparent",
