@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays, subMonths } from "date-fns";
@@ -48,7 +47,7 @@ export const EmotionTrendGraph = () => {
       }
 
       return data.map((stat) => ({
-        date: format(new Date(stat.created_at), "MMM dd, HH:mm"),
+        date: format(new Date(stat.created_at), "MMM dd"),
         emotion: stat.emotion_intensity,
         emotionType: stat.overall_emotion,
       }));
@@ -124,10 +123,6 @@ export const EmotionTrendGraph = () => {
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            angle={-45}
-            textAnchor="end"
-            height={60}
-            interval={0}
           />
           <YAxis
             domain={[1, 10]}
