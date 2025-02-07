@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays, subMonths } from "date-fns";
@@ -56,13 +57,13 @@ export const EmotionTrendGraph = () => {
 
   if (isLoading) {
     return (
-      <div className="h-[300px] w-full animate-pulse bg-neutral-100 rounded-lg" />
+      <div className="h-[300px] w-full animate-pulse bg-neutral-100/50 rounded-lg" />
     );
   }
 
   if (!stats || stats.length === 0) {
     return (
-      <div className="w-full h-[300px] bg-white rounded-xl p-4 shadow-sm">
+      <div className="w-full h-[300px] p-4">
         <h3 className="text-lg font-semibold mb-4">Emotional Trends</h3>
         <div className="h-full flex items-center justify-center">
           <p className="text-neutral-500">No emotional trend data available yet.</p>
@@ -75,7 +76,7 @@ export const EmotionTrendGraph = () => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-2 rounded-lg shadow-lg border border-neutral-200">
+        <div className="glass-card p-3">
           <p className="text-sm font-medium">{label}</p>
           <p className="text-sm text-neutral-600">
             Emotion Intensity: {data.emotion}
@@ -94,15 +95,15 @@ export const EmotionTrendGraph = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full h-[300px] bg-gradient-to-br from-white to-neutral-50 rounded-xl p-4 shadow-sm"
+      className="w-full h-[300px] p-4"
     >
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Emotional Trends</h3>
+        <h3 className="text-lg font-semibold text-[#2A3D66]">Emotional Trends</h3>
         <Select
           value={dateRange}
           onValueChange={(value: keyof typeof dateRanges) => setDateRange(value)}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-white/50 backdrop-blur-sm">
             <SelectValue placeholder="Select time range" />
           </SelectTrigger>
           <SelectContent>
@@ -116,7 +117,7 @@ export const EmotionTrendGraph = () => {
       </div>
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={stats}>
-          <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+          <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
           <XAxis
             dataKey="date"
             stroke="#666"
@@ -136,7 +137,7 @@ export const EmotionTrendGraph = () => {
             type="monotone"
             dataKey="emotion"
             stroke="#9b87f5"
-            strokeWidth={2}
+            strokeWidth={2.5}
             dot={{ fill: "#9b87f5", strokeWidth: 2 }}
             activeDot={{ r: 6, fill: "#7E69AB" }}
             animationDuration={1500}

@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -43,13 +44,13 @@ export const TopicBarChart = () => {
 
   if (isLoading) {
     return (
-      <div className="h-[300px] w-full animate-pulse bg-neutral-100 rounded-lg" />
+      <div className="h-[300px] w-full animate-pulse bg-neutral-100/50 rounded-lg" />
     );
   }
 
   if (!stats || stats.length === 0) {
     return (
-      <div className="w-full h-[300px] bg-white rounded-xl p-4 shadow-sm">
+      <div className="w-full h-[300px] p-4">
         <h3 className="text-lg font-semibold mb-4">Common Topics</h3>
         <div className="h-full flex items-center justify-center">
           <p className="text-neutral-500">No topics data available yet.</p>
@@ -59,11 +60,11 @@ export const TopicBarChart = () => {
   }
 
   return (
-    <div className="w-full h-[300px] bg-white rounded-xl p-4 shadow-sm">
-      <h3 className="text-lg font-semibold mb-4">Common Topics</h3>
+    <div className="w-full h-[300px] p-4">
+      <h3 className="text-lg font-semibold mb-4 text-[#2A3D66]">Common Topics</h3>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={stats}>
-          <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+          <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
           <XAxis
             dataKey="topic"
             stroke="#666"
@@ -79,16 +80,18 @@ export const TopicBarChart = () => {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "white",
-              border: "none",
-              borderRadius: "8px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              borderRadius: "0.75rem",
+              boxShadow: "0 4px 24px -1px rgba(0,0,0,0.04)",
             }}
           />
           <Bar
             dataKey="count"
             fill="#88C0A3"
             radius={[4, 4, 0, 0]}
+            animationDuration={1500}
           />
         </BarChart>
       </ResponsiveContainer>
