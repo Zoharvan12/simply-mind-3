@@ -40,18 +40,20 @@ export const ChatControls = ({ onSend }: ChatControlsProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
+      // Subscribe to ALL profile changes for the current user
       const channel = supabase
         .channel('profile_changes')
         .on(
           'postgres_changes',
           {
-            event: 'UPDATE',
+            event: '*',
             schema: 'public',
             table: 'profiles',
             filter: `id=eq.${user.id}`
           },
           (payload) => {
             if (payload.new && 'monthly_messages' in payload.new) {
+              console.log('Profile updated:', payload.new);
               setMonthlyMessages(payload.new.monthly_messages);
             }
           }
@@ -78,10 +80,15 @@ export const ChatControls = ({ onSend }: ChatControlsProps) => {
     };
   }, [role]);
 
+  const handleSend = () => {
+    if (isLimitReached) return;
+    onSend();
+  };
+
   const SendButton = () => (
     <Button 
       size="icon"
-      onClick={onSend}
+      onClick={handleSend}
       disabled={isLimitReached}
       className="bg-primary text-white hover:bg-primary/90 disabled:bg-gray-400"
     >
