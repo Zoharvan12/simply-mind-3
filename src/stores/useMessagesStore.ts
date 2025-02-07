@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
 import { Chat } from "@/stores/messages/types";
 import { toast } from "sonner";
@@ -35,8 +35,21 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
 
   createNewChat: async () => {
     try {
-      const { data: newChat, error } = await supabase.from('chats').insert({ title: 'New Chat' }).single();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data: newChat, error } = await supabase
+        .from('chats')
+        .insert({ 
+          title: 'New Chat',
+          user_id: user.id 
+        })
+        .select()
+        .single();
+
       if (error) throw error;
+      if (!newChat) throw new Error('Failed to create chat');
+
       set((state) => ({
         chats: [...state.chats, newChat],
         currentChatId: newChat.id,
