@@ -27,32 +27,18 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        // First create the user
         const { error: signUpError, data } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+            },
+          },
         });
 
         if (signUpError) throw signUpError;
-
-        if (data.user) {
-          // Then update the profile using upsert to handle both insert and update cases
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .upsert({
-              id: data.user.id,
-              first_name: firstName,
-              last_name: lastName,
-              updated_at: new Date().toISOString()
-            }, {
-              onConflict: 'id'
-            });
-
-          if (profileError) {
-            console.error('Profile update error:', profileError);
-            throw new Error('Failed to update profile information');
-          }
-        }
 
         toast({
           title: "Account created!",
