@@ -95,10 +95,18 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_user_statistics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       has_role: {
         Args: {
           required_role: Database["public"]["Enums"]["app_role"]
         }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }

@@ -1,5 +1,5 @@
 
-import { Home, MessageSquare, BarChart2, Settings } from "lucide-react";
+import { Home, MessageSquare, BarChart2, Settings, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Sidebar,
@@ -32,7 +32,7 @@ const menuItems = [
 ];
 
 export function AppSidebar() {
-  const { role } = useUserRole();
+  const { role, isAdmin } = useUserRole();
   
   return (
     <Sidebar>
@@ -76,6 +76,19 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900"
+                >
+                  <Shield className="h-5 w-5" />
+                  <span>Admin Panel</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link
@@ -85,8 +98,8 @@ export function AppSidebar() {
                 <Settings className="h-5 w-5" />
                 <span>Settings</span>
               </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import Chats from "./pages/Chats";
 import Graph from "./pages/Graph";
 import Settings from "./pages/Settings";
+import AdminPanel from "./pages/AdminPanel";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/chats" element={<Chats />} />
           <Route path="/graph" element={<Graph />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<AdminPanel />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

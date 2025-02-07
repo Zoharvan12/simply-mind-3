@@ -8,6 +8,7 @@ export function useUserRole() {
   const [role, setRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -16,10 +17,16 @@ export function useUserRole() {
         
         if (!user) {
           setRole(null);
+          setIsAdmin(false);
           return;
         }
 
-        // Call the security definer function through RPC
+        // Check if user is admin
+        const { data: adminCheck, error: adminError } = await supabase.rpc('is_admin');
+        if (adminError) throw adminError;
+        setIsAdmin(adminCheck);
+
+        // Get user role
         const { data, error: rpcError } = await supabase
           .rpc('check_user_role', {
             user_id: user.id
@@ -51,5 +58,5 @@ export function useUserRole() {
     };
   }, []);
 
-  return { role, isLoading, error };
+  return { role, isLoading, error, isAdmin };
 }
