@@ -18,13 +18,6 @@ export const ChatInput = () => {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
   return (
     <div className="p-4 border-t">
       <div className="relative glass-card rounded-lg">
@@ -36,10 +29,17 @@ export const ChatInput = () => {
             Promise.resolve(markdown)
           }
           toolbarCommands={[]}
-          onKeyDown={handleKeyDown}
           classes={{
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
+          }}
+          textAreaProps={{
+            onKeyDown: (e: React.KeyboardEvent) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }
           }}
         />
         <div className="absolute right-2 bottom-2 flex gap-2">
