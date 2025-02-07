@@ -18,23 +18,25 @@ export function useUserRole() {
         if (!user) {
           setRole(null);
           setIsAdmin(false);
+          setIsLoading(false);
           return;
         }
 
-        // Check if user is admin
-        const { data: adminCheck, error: adminError } = await supabase.rpc('is_admin');
-        if (adminError) throw adminError;
-        setIsAdmin(adminCheck);
-
-        // Get user role
-        const { data, error: rpcError } = await supabase
+        // Get user role first
+        const { data: roleData, error: rpcError } = await supabase
           .rpc('check_user_role', {
             user_id: user.id
           });
 
         if (rpcError) throw rpcError;
         
-        setRole(data || 'free');
+        // Set the role from the database
+        const userRole = roleData || 'free';
+        setRole(userRole);
+        
+        // Then check if user is admin based on the retrieved role
+        setIsAdmin(userRole === 'admin');
+
       } catch (err: any) {
         console.error('Error fetching user role:', err);
         setError(err.message);
