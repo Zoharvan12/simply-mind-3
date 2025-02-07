@@ -4,6 +4,8 @@ export interface Message {
   role: 'user' | 'ai';
   content: string;
   created_at: string;
+  chat_id: string;
+  isLoading?: boolean;
 }
 
 export interface Chat {
@@ -18,4 +20,3 @@ export interface MessagesState {
   currentChatId: string | null;
   isLoading: boolean;
 }
-

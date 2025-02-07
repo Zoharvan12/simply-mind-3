@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { MessagesState, Message, Chat } from './messages/types';
 import { createNewChat, fetchChats, renameChat, deleteChat } from './messages/chatOperations';
@@ -50,7 +49,7 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   },
 
   sendMessage: async (content: string) => {
-    const { currentChatId, messages } = get();
+    const { currentChatId, messages, addMessage } = get();
     let chatId = currentChatId;
 
     if (!chatId) {
@@ -62,13 +61,47 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
       }
     }
 
-    const { message, isFirstMessage } = await sendMessage(content, chatId, messages);
-    set((state) => ({ messages: [...state.messages, message] }));
-    
-    await get().fetchMessages(chatId);
-    
-    if (isFirstMessage) {
-      await get().fetchChats();
+    // Add user message immediately with a temporary ID
+    const tempUserMessage: Message = {
+      id: `temp-${Date.now()}`,
+      chat_id: chatId,
+      role: 'user',
+      content,
+      created_at: new Date().toISOString(),
+    };
+    addMessage(tempUserMessage);
+
+    // Add AI "thinking" message
+    const tempAiMessage: Message = {
+      id: 'thinking',
+      chat_id: chatId,
+      role: 'ai',
+      content: '',
+      created_at: new Date().toISOString(),
+      isLoading: true,
+    };
+    addMessage(tempAiMessage);
+
+    try {
+      const { message, isFirstMessage } = await sendMessage(content, chatId, messages);
+      
+      // Update messages list: remove temporary messages and add actual ones
+      set((state) => ({
+        messages: state.messages
+          .filter(m => m.id !== 'thinking' && m.id !== tempUserMessage.id)
+          .concat([message])
+      }));
+      
+      await get().fetchMessages(chatId);
+      
+      if (isFirstMessage) {
+        await get().fetchChats();
+      }
+    } catch (error) {
+      // Remove thinking message but keep the user message in case of error
+      set((state) => ({
+        messages: state.messages.filter(m => m.id !== 'thinking')
+      }));
     }
   },
 
@@ -96,4 +129,3 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     }
   },
 }));
-
