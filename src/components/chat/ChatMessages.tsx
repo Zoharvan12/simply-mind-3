@@ -12,31 +12,36 @@ import { Loader } from "lucide-react";
 export const ChatMessages = () => {
   const { messages, isLoading } = useMessagesStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const prevMessagesLengthRef = useRef(messages.length);
 
-  // Handle auto-scrolling based on new messages and scroll position
+  const scrollToBottom = () => {
+    if (messagesEndRef.current && shouldAutoScroll) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Handle new messages
   useEffect(() => {
     const currentLength = messages.length;
     const hadNewMessage = currentLength > prevMessagesLengthRef.current;
     prevMessagesLengthRef.current = currentLength;
 
-    // Only scroll if there's a new message and auto-scroll is enabled
-    if (hadNewMessage && shouldAutoScroll && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (hadNewMessage) {
+      scrollToBottom();
     }
-  }, [messages, shouldAutoScroll]);
+  }, [messages]);
 
-  // Track scroll position to determine if we should auto-scroll
-  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    if (!scrollAreaRef.current) return;
+  // Handle manual scrolling
+  const handleScroll = () => {
+    if (!viewportRef.current) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+    const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
     const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
     
-    // Enable auto-scroll when user is near bottom (within 100px)
-    setShouldAutoScroll(distanceFromBottom < 100);
+    // Only enable auto-scroll when very close to bottom (within 20px)
+    setShouldAutoScroll(distanceFromBottom < 20);
   };
 
   if (isLoading) {
@@ -51,9 +56,12 @@ export const ChatMessages = () => {
     <ScrollArea 
       className="h-[calc(100vh-20rem)]"
       onWheel={handleScroll}
-      ref={scrollAreaRef}
     >
-      <div className="space-y-4 p-4">
+      <div 
+        className="space-y-4 p-4"
+        ref={viewportRef}
+        onScroll={handleScroll}
+      >
         {messages.map((message) => (
           <div key={message.id} className={cn("flex", message.role === 'user' ? "justify-end" : "justify-start")}>
             <div className={cn(
