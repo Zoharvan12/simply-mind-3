@@ -22,6 +22,10 @@ export const TopicBarChart = () => {
 
       if (error) throw error;
 
+      if (!data || data.length === 0) {
+        return [];
+      }
+
       // Count topic frequencies
       const topicCount: Record<string, number> = {};
       data.forEach((stat) => {
@@ -37,9 +41,20 @@ export const TopicBarChart = () => {
     },
   });
 
-  if (isLoading || !stats) {
+  if (isLoading) {
     return (
       <div className="h-[300px] w-full animate-pulse bg-neutral-100 rounded-lg" />
+    );
+  }
+
+  if (!stats || stats.length === 0) {
+    return (
+      <div className="w-full h-[300px] bg-white rounded-xl p-4 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4">Common Topics</h3>
+        <div className="h-full flex items-center justify-center">
+          <p className="text-neutral-500">No topics data available yet.</p>
+        </div>
+      </div>
     );
   }
 

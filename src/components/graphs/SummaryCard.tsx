@@ -10,16 +10,27 @@ export const SummaryCard = () => {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
     },
   });
 
-  if (isLoading || !latestStat) {
+  if (isLoading) {
     return (
       <div className="h-[200px] w-full animate-pulse bg-neutral-100 rounded-lg" />
+    );
+  }
+
+  if (!latestStat) {
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4">Your Emotional Summary</h3>
+        <p className="text-neutral-500">
+          No analysis available yet. Start writing journal entries to see insights about your emotional journey.
+        </p>
+      </div>
     );
   }
 

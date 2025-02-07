@@ -21,6 +21,11 @@ export const EmotionTrendGraph = () => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
       return data.map((stat) => ({
         date: format(new Date(stat.created_at), "MMM dd"),
         emotion: stat.emotion_intensity,
@@ -29,9 +34,20 @@ export const EmotionTrendGraph = () => {
     },
   });
 
-  if (isLoading || !stats) {
+  if (isLoading) {
     return (
       <div className="h-[300px] w-full animate-pulse bg-neutral-100 rounded-lg" />
+    );
+  }
+
+  if (!stats || stats.length === 0) {
+    return (
+      <div className="w-full h-[300px] bg-white rounded-xl p-4 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4">Emotional Trends</h3>
+        <div className="h-full flex items-center justify-center">
+          <p className="text-neutral-500">No emotional trend data available yet.</p>
+        </div>
+      </div>
     );
   }
 
