@@ -20,7 +20,7 @@ export const ChatInput = () => {
 
   const commands = {
     'enter-send': {
-      execute: async (options: { textArea: HTMLTextAreaElement }) => {
+      execute: async (options: any) => {
         await handleSendMessage();
       },
       handleKeyCommand: (e: KeyboardEvent) => {
