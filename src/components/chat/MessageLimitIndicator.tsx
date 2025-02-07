@@ -32,7 +32,7 @@ export const MessageLimitIndicator = () => {
         event: 'UPDATE',
         schema: 'public',
         table: 'profiles',
-        filter: `id=eq.${supabase.auth.user()?.id}`,
+        filter: `id=eq.${supabase.auth.getUser().then(({ data }) => data.user?.id)}`,
       }, (payload) => {
         setMonthlyMessages(payload.new.monthly_messages);
       })
@@ -44,7 +44,7 @@ export const MessageLimitIndicator = () => {
   }, [role]);
 
   return (
-    <div className="mt-2">
+    <div
       <div className="flex justify-between text-sm text-neutral-500 mb-1">
         <span>Monthly message limit</span>
         <span>{monthlyMessages}/50 messages</span>
