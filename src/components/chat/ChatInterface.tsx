@@ -20,10 +20,10 @@ export const ChatInterface = () => {
         <div className="flex-none border-b p-4">
           <h2 className="text-lg font-semibold text-[#2A3D66]">Chat Assistant</h2>
         </div>
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 overflow-hidden">
           <ChatMessages />
         </div>
-        <div className="flex-none">
+        <div className="flex-none border-t">
           <ChatInput />
         </div>
       </ResizablePanel>
