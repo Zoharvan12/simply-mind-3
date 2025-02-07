@@ -17,12 +17,11 @@ export const ChatInput = () => {
     }
   };
 
-  const handleKeyCommand = (command: string) => {
-    if (command === 'enter') {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
       handleSendMessage();
-      return true;
     }
-    return false;
   };
 
   return (
@@ -40,7 +39,7 @@ export const ChatInput = () => {
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
           }}
-          onPressCommandKey={handleKeyCommand}
+          onKeyDown={handleKeyPress}
         />
         <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 

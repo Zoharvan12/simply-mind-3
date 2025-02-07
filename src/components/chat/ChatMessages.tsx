@@ -25,7 +25,7 @@ export const ChatMessages = () => {
   }
 
   return (
-    <ScrollArea className="h-[calc(700px-8rem)]">
+    <ScrollArea className="h-[calc(100vh-20rem)]">
       <div className="space-y-4 p-4">
         {messages.map((message) => (
           <div key={message.id} className={cn("flex", message.role === 'user' ? "justify-end" : "justify-start")}>

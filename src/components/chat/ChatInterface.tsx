@@ -8,7 +8,7 @@ export const ChatInterface = () => {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="h-[700px] rounded-lg border bg-background/50 backdrop-blur-sm"
+      className="min-h-[calc(100vh-12rem)] rounded-lg border bg-background/50 backdrop-blur-sm"
     >
       <ResizablePanel defaultSize={20} minSize={15} maxSize={25} className="border-r">
         <ChatList />
