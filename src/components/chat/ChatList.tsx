@@ -78,7 +78,7 @@ export const ChatList = () => {
               key={chat.id}
               className={cn(
                 "glass-card p-3 group relative cursor-pointer hover:shadow-md transition-shadow",
-                currentChatId === chat.id && "border-2 border-primary bg-primary-light/10"
+                currentChatId === chat.id && "border-2 border-primary bg-primary-light/30 shadow-md"
               )}
               onClick={(e) => {
                 // Only fetch messages if we didn't click on an action button
