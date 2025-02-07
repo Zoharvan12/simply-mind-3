@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { MessagesState, Message, Chat } from './messages/types';
 import { createNewChat, fetchChats, renameChat, deleteChat } from './messages/chatOperations';
@@ -28,11 +29,14 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   setCurrentChatId: (chatId) => set({ currentChatId: chatId }),
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   
-  updateChat: (updatedChat) => set((state) => ({
-    chats: state.chats.map(chat => 
-      chat.id === updatedChat.id ? updatedChat : chat
-    )
-  })),
+  updateChat: (updatedChat) => {
+    console.log('Updating chat in store:', updatedChat);
+    set((state) => ({
+      chats: state.chats.map(chat => 
+        chat.id === updatedChat.id ? updatedChat : chat
+      )
+    }));
+  },
 
   createNewChat: async () => {
     const { newChats, chatId } = await createNewChat(get().chats);
@@ -138,3 +142,4 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     }
   },
 }));
+
