@@ -20,8 +20,8 @@ export const ChatInput = () => {
 
   const commands = {
     'enter-send': {
-      execute: (options: { getState: () => any }) => {
-        handleSendMessage();
+      execute: async (options: { textArea: HTMLTextAreaElement }) => {
+        await handleSendMessage();
       },
       handleKeyCommand: (e: KeyboardEvent) => {
         if (e.key === "Enter" && !e.shiftKey) {
