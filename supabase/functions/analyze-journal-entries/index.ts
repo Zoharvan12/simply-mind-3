@@ -61,7 +61,7 @@ serve(async (req) => {
     // Format entries for GPT analysis
     const entriesText = entries
       .map((entry: JournalEntry) => `Entry (${entry.created_at}): ${entry.content}`)
-      .join('\n');
+      .join('\n\n');
 
     // Analyze with GPT-4o
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -76,21 +76,17 @@ serve(async (req) => {
           {
             role: 'system',
             content: `You are an AI that analyzes journal entries to provide emotional insights. 
-            Always respond with a JSON object containing:
-            - overall_emotion: "positive", "neutral", or "negative"
-            - common_topics: array of strings
-            - emotion_intensity: number between 1-10
-            - summary: brief analysis of emotional state`
+            Analyze the entries and return ONLY a JSON object with these exact fields:
+            {
+              "overall_emotion": "positive" or "neutral" or "negative",
+              "common_topics": array of strings,
+              "emotion_intensity": number between 1-10,
+              "summary": string with brief analysis
+            }`
           },
           {
             role: 'user',
-            content: `Analyze these journal entries and determine:
-            1. The overall emotional trend (positive/negative/neutral)
-            2. The most common topics discussed
-            3. The emotional intensity on a scale of 1-10
-            4. A brief summary of the mental state
-            
-            Entries:
+            content: `Analyze these journal entries and provide emotional insights:
             ${entriesText}`
           }
         ],
@@ -104,8 +100,8 @@ serve(async (req) => {
       throw new Error('Invalid GPT response');
     }
 
-    // Parse GPT response
-    const analysis: AnalysisResult = JSON.parse(gptData.choices[0].message.content);
+    // Parse GPT response - ensure it's valid JSON
+    const analysis: AnalysisResult = JSON.parse(gptData.choices[0].message.content.trim());
 
     // Store analysis in stats table
     const { error: statsError } = await supabaseClient
