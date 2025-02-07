@@ -75,7 +75,9 @@ export function CreateJournalDialog({
       if (error) throw error;
       if (response?.message) {
         setTitle(response.message);
+        return response.message;
       }
+      return null;
     } catch (error: any) {
       console.error('Error generating title:', error);
       toast({
@@ -83,6 +85,7 @@ export function CreateJournalDialog({
         description: "Failed to generate title. Please try again.",
         variant: "destructive",
       });
+      return null;
     }
   };
 
@@ -108,16 +111,17 @@ export function CreateJournalDialog({
         throw new Error("You must be logged in to create a journal entry");
       }
 
-      // If no title was entered, generate one
-      if (!title && content) {
-        await generateTitle(content);
+      // If no title was entered, generate one and wait for the result
+      let finalTitle = title;
+      if (!finalTitle && content) {
+        finalTitle = await generateTitle(content) || "Untitled Entry";
       }
 
       if (isEditing && editEntry) {
         const { error } = await supabase
           .from("journal_entries")
           .update({
-            title: title || "Untitled Entry", // Fallback title if generation failed
+            title: finalTitle || "Untitled Entry",
             content,
             emotion_rating: emotionRating[0],
           })
@@ -131,7 +135,7 @@ export function CreateJournalDialog({
         });
       } else {
         const { error } = await supabase.from("journal_entries").insert({
-          title: title || "Untitled Entry", // Fallback title if generation failed
+          title: finalTitle || "Untitled Entry",
           content,
           emotion_rating: emotionRating[0],
           user_id: user.id
