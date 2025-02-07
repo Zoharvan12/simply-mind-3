@@ -79,7 +79,19 @@ const AdminPanel = () => {
         console.error('Error fetching statistics:', statsError);
         throw statsError;
       }
-      setStats(statsData as UserStats);
+      
+      // Type assertion after validating the shape of the data
+      const typedStats = statsData as unknown as UserStats;
+      if (
+        typeof typedStats.total_users === 'number' &&
+        typeof typedStats.free_users === 'number' &&
+        typeof typedStats.premium_users === 'number'
+      ) {
+        setStats(typedStats);
+      } else {
+        console.error('Invalid stats data format:', statsData);
+        throw new Error('Invalid statistics data format');
+      }
 
       // Fetch users with detailed error logging
       const { data: userData, error: userError } = await supabase.rpc('get_admin_user_list');
