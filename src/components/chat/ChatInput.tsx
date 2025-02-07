@@ -3,16 +3,35 @@ import { useMessagesStore } from "@/stores/useMessagesStore";
 import { AudioRecorder } from "./AudioRecorder";
 import { MessageComposer } from "./MessageComposer";
 import { ChatControls } from "./ChatControls";
+import { useUserRole } from "@/hooks/useUserRole";
+import { toast } from "sonner";
 
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
   const { sendMessage } = useMessagesStore();
+  const { role } = useUserRole();
 
   const handleSendMessage = async () => {
-    if (message.trim()) {
-      const currentMessage = message.trim();
+    if (!message.trim()) return;
+
+    const currentMessage = message.trim();
+    try {
       setMessage("");
       await sendMessage(currentMessage);
+    } catch (error: any) {
+      // Restore the message if sending fails
+      setMessage(currentMessage);
+      
+      if (error.message?.includes('message limit')) {
+        toast.error("You've reached your monthly message limit. Upgrade to premium for unlimited messages!", {
+          action: {
+            label: "Upgrade",
+            onClick: () => window.location.href = "/settings"
+          }
+        });
+      } else {
+        toast.error("Failed to send message. Please try again.");
+      }
     }
   };
 
