@@ -7,7 +7,7 @@ const iconMap = {
   'brain': Brain,
   'chart': BarChart3,
   'book': BookText,
-};
+} as const;
 
 interface FeaturesProps {
   content: {
@@ -43,3 +43,4 @@ export const Features = ({ content }: FeaturesProps) => {
     </ScrollReveal>
   );
 };
+

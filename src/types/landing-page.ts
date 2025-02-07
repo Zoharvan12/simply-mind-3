@@ -22,7 +22,7 @@ export type LandingPageContent = {
     list: Array<{
       title: string;
       description: string;
-      icon: string;
+      icon: "brain" | "chart" | "book";
     }>;
   };
   pricing: {
@@ -33,3 +33,4 @@ export type LandingPageContent = {
     }>;
   };
 };
+
