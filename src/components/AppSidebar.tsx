@@ -95,9 +95,11 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Logo */}
         <div className="p-6">
-          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#7098DA] to-[#88C0A3] flex items-center justify-center">
-            <span className="text-white font-semibold text-xl">SM</span>
-          </div>
+          <img 
+            src="/lovable-uploads/2253eb44-6042-477b-9166-dacf32313b2e.png" 
+            alt="SimplyMind Logo" 
+            className="h-16 w-auto"
+          />
         </div>
 
         {/* Welcome Message */}
@@ -151,7 +153,7 @@ export function AppSidebar() {
                 <Settings className="h-5 w-5" />
                 <span>Settings</span>
               </Link>
-            </SidebarMenuButton>
+              </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleSignOut}>
