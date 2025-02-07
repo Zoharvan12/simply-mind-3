@@ -19,15 +19,15 @@ export function useUserRole() {
           return;
         }
 
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
+        // Call the security definer function through RPC
+        const { data, error: rpcError } = await supabase
+          .rpc('check_user_role', {
+            user_id: user.id
+          });
 
-        if (roleError) throw roleError;
+        if (rpcError) throw rpcError;
         
-        setRole(roleData?.role || 'free');
+        setRole(data || 'free');
       } catch (err: any) {
         console.error('Error fetching user role:', err);
         setError(err.message);
