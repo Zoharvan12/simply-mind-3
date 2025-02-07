@@ -17,7 +17,7 @@ interface ChatControlsProps {
 
 export const ChatControls = ({ onSend }: ChatControlsProps) => {
   const { role } = useUserRole();
-  const [monththlyMessages] = useState(0);
+  const [monthlyMessages, setMonthlyMessages] = useState(0);
   const isLimitReached = role === 'free' && monthlyMessages >= 50;
 
   useEffect(() => {
