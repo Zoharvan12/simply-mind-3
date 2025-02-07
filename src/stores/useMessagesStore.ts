@@ -44,9 +44,18 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   
   createNewChat: async () => {
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const { data: chat, error } = await supabase
         .from('chats')
-        .insert([{ title: 'New Chat' }])
+        .insert({
+          title: 'New Chat',
+          user_id: user.id
+        })
         .select()
         .single();
 
@@ -110,11 +119,18 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     }
 
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       // Send user message
       const { data: message, error: messageError } = await supabase
         .from('messages')
         .insert([{
           chat_id: get().currentChatId,
+          user_id: user.id,
           role: 'user',
           content
         }])
