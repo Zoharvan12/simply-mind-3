@@ -76,7 +76,7 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          {isAdmin && (
+          {role === 'admin' && (
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link

@@ -22,7 +22,7 @@ export function useUserRole() {
           return;
         }
 
-        // Get user role first
+        // Get user role
         const { data: roleData, error: rpcError } = await supabase
           .rpc('check_user_role', {
             user_id: user.id
@@ -31,10 +31,10 @@ export function useUserRole() {
         if (rpcError) throw rpcError;
         
         // Set the role from the database
-        const userRole = roleData || 'free';
+        const userRole = roleData as UserRole;
         setRole(userRole);
         
-        // Then check if user is admin based on the retrieved role
+        // Set admin status based on the role
         setIsAdmin(userRole === 'admin');
 
       } catch (err: any) {
