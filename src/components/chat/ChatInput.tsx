@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Mic, Send } from "lucide-react";
-import { useState } from "react";
+import { KeyboardEvent, useState } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
@@ -17,7 +17,7 @@ export const ChatInput = () => {
     }
   };
 
-  const handleKey = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -39,7 +39,7 @@ export const ChatInput = () => {
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
           }}
-          onKeyDown={handleKey}
+          onKeyPress={handleKeyPress}
         />
         <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 
