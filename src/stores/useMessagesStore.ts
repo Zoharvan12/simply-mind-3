@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { MessagesState, Message, Chat } from './messages/types';
 import { createNewChat, fetchChats, renameChat, deleteChat } from './messages/chatOperations';
@@ -9,6 +8,7 @@ interface MessagesStore extends MessagesState {
   setChats: (chats: Chat[]) => void;
   setCurrentChatId: (chatId: string | null) => void;
   addMessage: (message: Message) => void;
+  updateChat: (chat: Chat) => void;
   createNewChat: () => Promise<string>;
   fetchChats: () => Promise<void>;
   fetchMessages: (chatId: string) => Promise<void>;
@@ -28,6 +28,12 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   setCurrentChatId: (chatId) => set({ currentChatId: chatId }),
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   
+  updateChat: (updatedChat) => set((state) => ({
+    chats: state.chats.map(chat => 
+      chat.id === updatedChat.id ? updatedChat : chat
+    )
+  })),
+
   createNewChat: async () => {
     const { newChats, chatId } = await createNewChat(get().chats);
     set({ chats: newChats });

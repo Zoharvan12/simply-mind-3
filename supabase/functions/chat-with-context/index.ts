@@ -95,7 +95,7 @@ Based on this context, provide supportive and relevant responses. If the user se
       const titleData = await titleResponse.json();
       const generatedTitle = titleData.choices[0].message.content.trim();
 
-      // Update chat title
+      // Update chat title with REPLICA IDENTITY FULL to enable real-time updates
       const { error: updateError } = await supabase
         .from('chats')
         .update({ title: generatedTitle })

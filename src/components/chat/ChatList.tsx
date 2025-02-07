@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Edit2, Trash2 } from "lucide-react";
@@ -15,16 +14,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 export const ChatList = () => {
-  const { chats, fetchChats, createNewChat, fetchMessages, currentChatId, renameChat, deleteChat } = useMessagesStore();
+  const { chats, fetchChats, createNewChat, fetchMessages, currentChatId, renameChat, deleteChat, updateChat } = useMessagesStore();
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [deletingChatId, setDeletingChatId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchChats();
-  }, [fetchChats]);
+
+    // Set up real-time subscription for chat updates
+    const channel = supabase
+      .channel('public:chats')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chats'
+        },
+        (payload) => {
+          if (payload.new) {
+            updateChat(payload.new);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchChats, updateChat]);
 
   const handleNewChat = async () => {
     try {
@@ -163,4 +185,3 @@ export const ChatList = () => {
     </div>
   );
 };
-
