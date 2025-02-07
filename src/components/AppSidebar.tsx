@@ -15,6 +15,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
 
 const menuItems = [
   {
@@ -37,7 +38,27 @@ const menuItems = [
 export function AppSidebar() {
   const { role, isLoading, isAdmin } = useUserRole();
   const navigate = useNavigate();
+  const [firstName, setFirstName] = useState<string | null>(null);
   
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setFirstName(profile.first_name);
+        }
+      }
+    };
+    
+    fetchUserProfile();
+  }, []);
+
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -50,7 +71,7 @@ export function AppSidebar() {
   };
 
   const renderWelcomeMessage = () => {
-    if (isLoading) {
+    if (isLoading || firstName === null) {
       return (
         <div className="space-y-2">
           <Skeleton className="h-6 w-32" />
@@ -62,7 +83,7 @@ export function AppSidebar() {
     return (
       <>
         <h2 className="text-lg font-medium text-[#2A3D66]">
-          Hello, {role === "free" ? "Friend" : "Premium User"}
+          Hello, {firstName || "Friend"}
         </h2>
         <p className="text-sm text-neutral-500">Welcome back</p>
       </>
