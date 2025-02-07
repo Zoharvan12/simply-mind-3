@@ -66,47 +66,57 @@ export const JournalEntry = ({ entry, onEntryDeleted, onEntryUpdated }: JournalE
 
   return (
     <>
-      <JournalCard className="h-[200px] group cursor-pointer relative">
-        <div className="flex justify-between items-start mb-2">
+      <JournalCard className="group flex flex-col min-h-[200px]">
+        {/* Header Section */}
+        <div className="flex justify-between items-start mb-4">
           <h3 className="text-lg font-semibold text-[#2A3D66] group-hover:text-[#7098DA] transition-colors">
             {entry.title}
           </h3>
-          <span className="text-sm text-neutral-500">
+          <span className="text-sm text-neutral-500 whitespace-nowrap ml-4">
             {format(new Date(entry.created_at), "MMM d, yyyy")}
           </span>
         </div>
-        <p className="text-neutral-600 line-clamp-3 mb-2">{entry.content}</p>
-        <div className="mt-auto">
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-neutral-500">Emotion Rating:</div>
-            <div className="font-medium text-[#2A3D66]">{entry.emotion_rating}/10</div>
-          </div>
+
+        {/* Content Section */}
+        <div className="flex-1 mb-4">
+          <p className="text-neutral-600 line-clamp-3">{entry.content}</p>
         </div>
-        
-        {/* Action buttons */}
-        <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowEditDialog(true);
-            }}
-          >
-            <Pencil className="h-4 w-4 text-[#2A3D66]" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowDeleteDialog(true);
-            }}
-          >
-            <Trash2 className="h-4 w-4 text-[#D95B5B]" />
-          </Button>
+
+        {/* Footer Section - Always visible with subtle background */}
+        <div className="mt-auto pt-4 border-t border-neutral-100">
+          <div className="flex items-center justify-between">
+            {/* Emotion Rating */}
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-neutral-500">Emotion Rating:</div>
+              <div className="font-medium text-[#2A3D66]">{entry.emotion_rating}/10</div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-neutral-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowEditDialog(true);
+                }}
+              >
+                <Pencil className="h-4 w-4 text-[#2A3D66]" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-neutral-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeleteDialog(true);
+                }}
+              >
+                <Trash2 className="h-4 w-4 text-[#D95B5B]" />
+              </Button>
+            </div>
+          </div>
         </div>
       </JournalCard>
 
@@ -143,3 +153,4 @@ export const JournalEntry = ({ entry, onEntryDeleted, onEntryUpdated }: JournalE
     </>
   );
 };
+
