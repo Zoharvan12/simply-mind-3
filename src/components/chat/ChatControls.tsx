@@ -8,6 +8,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ChatControlsProps {
   onSend: () => void;
@@ -15,11 +17,27 @@ interface ChatControlsProps {
 
 export const ChatControls = ({ onSend }: ChatControlsProps) => {
   const { role } = useUserRole();
-  const { messages } = useMessagesStore();
-  
-  // Count user messages in the current month
-  const userMessages = messages.filter(m => m.role === 'user').length;
-  const isLimitReached = role === 'free' && userMessages >= 50;
+  const [monthlyMessages, setMonthlyMessages] = useState(0);
+  const isLimitReached = role === 'free' && monthlyMessages >= 50;
+
+  useEffect(() => {
+    const fetchMessageCount = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || role !== 'free') return;
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('monthly_messages')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && profile) {
+        setMonthlyMessages(profile.monthly_messages);
+      }
+    };
+
+    fetchMessageCount();
+  }, [role]);
 
   const SendButton = () => (
     <Button 

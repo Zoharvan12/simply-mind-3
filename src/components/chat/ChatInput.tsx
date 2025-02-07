@@ -22,7 +22,7 @@ export const ChatInput = () => {
       // Restore the message if sending fails
       setMessage(currentMessage);
       
-      if (error.message?.includes('message limit')) {
+      if (error.message?.includes('policy')) {
         toast.error("You've reached your monthly message limit. Upgrade to premium for unlimited messages!", {
           action: {
             label: "Upgrade",
