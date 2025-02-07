@@ -3,6 +3,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 
 export const ChatMessages = () => {
   const { messages, isLoading } = useMessagesStore();
@@ -29,9 +33,17 @@ export const ChatMessages = () => {
               "max-w-[80%] p-3 rounded-lg",
               message.role === 'user' ? "bg-primary text-white" : "glass-card"
             )}>
-              <p className={message.role === 'user' ? "text-white" : "text-neutral-700"}>
-                {message.content}
-              </p>
+              <div className={cn(
+                "prose prose-sm max-w-none",
+                message.role === 'user' ? "prose-invert" : "prose-neutral"
+              )}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                >
+                  {message.content}
+                </ReactMarkdown>
+              </div>
               <div className="text-xs mt-1 opacity-70">
                 {new Date(message.created_at).toLocaleTimeString()}
               </div>

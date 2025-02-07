@@ -1,13 +1,15 @@
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Mic, Send } from "lucide-react";
 import { KeyboardEvent, useState } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
+import ReactMde from "react-mde";
+import "react-mde/lib/styles/css/react-mde-all.css";
 
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
   const { sendMessage } = useMessagesStore();
+  const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -16,7 +18,7 @@ export const ChatInput = () => {
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -25,16 +27,27 @@ export const ChatInput = () => {
 
   return (
     <div className="p-4 border-t">
-      <div className="relative">
-        <Textarea 
-          placeholder="Type your message..." 
-          className="pr-24 resize-none glass-card" 
-          rows={2}
+      <div className="relative glass-card rounded-lg">
+        <ReactMde
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyPress}
+          onChange={setMessage}
+          selectedTab={selectedTab}
+          onTabChange={setSelectedTab}
+          generateMarkdownPreview={markdown =>
+            Promise.resolve(markdown)
+          }
+          toolbarCommands={[
+            ["header", "bold", "italic"],
+            ["unordered-list", "ordered-list"],
+            ["quote", "code"]
+          ]}
+          classes={{
+            reactMde: "border-none bg-transparent",
+            textArea: "bg-transparent border-none focus:outline-none"
+          }}
+          onKeyPress={handleKeyPress}
         />
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+        <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 
             size="icon" 
             variant="ghost"
