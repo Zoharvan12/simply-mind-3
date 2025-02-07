@@ -86,13 +86,13 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     addMessage(tempAiMessage);
 
     try {
-      const { message } = await sendMessage(content, chatId, messages);
+      const { userMessage, aiMessage } = await sendMessage(content, chatId, messages);
       
       // Update messages list: remove temporary messages and add actual ones
       set((state) => ({
         messages: state.messages
           .filter(m => m.id !== 'thinking' && m.id !== tempUserMessage.id)
-          .concat([tempUserMessage, message])
+          .concat([userMessage, aiMessage])
       }));
       
       // Only fetch chats if this was the first message
@@ -104,6 +104,7 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
       set((state) => ({
         messages: state.messages.filter(m => m.id !== 'thinking')
       }));
+      throw error;
     }
   },
 

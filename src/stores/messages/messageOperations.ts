@@ -31,7 +31,8 @@ export const sendMessage = async (
       throw new Error('User not authenticated');
     }
 
-    const { data: message, error: messageError } = await supabase
+    // Insert user message
+    const { data: userMessage, error: messageError } = await supabase
       .from('messages')
       .insert([{
         chat_id: chatId,
@@ -46,6 +47,7 @@ export const sendMessage = async (
 
     const isFirstMessage = messages.length === 0;
 
+    // Get AI response
     const { data: aiResponse, error: aiError } = await supabase.functions
       .invoke('chat-with-context', {
         body: {
@@ -57,7 +59,23 @@ export const sendMessage = async (
 
     if (aiError) throw aiError;
 
-    return { message, isFirstMessage };
+    // Fetch the AI message that was stored by the edge function
+    const { data: aiMessage, error: fetchAiError } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('chat_id', chatId)
+      .eq('role', 'ai')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (fetchAiError) throw fetchAiError;
+
+    return { 
+      userMessage, 
+      aiMessage,
+      isFirstMessage 
+    };
   } catch (error) {
     console.error('Error sending message:', error);
     toast.error('Failed to send message');
