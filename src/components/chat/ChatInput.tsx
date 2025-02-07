@@ -1,12 +1,17 @@
 
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Send } from "lucide-react";
+import { Mic, Send } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+const isRTL = (text: string) => {
+  const rtlRegex = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
+  return rtlRegex.test(text);
+};
 
 const CustomTextArea = (props: any) => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -17,9 +22,13 @@ const CustomTextArea = (props: any) => {
     }
   };
 
+  const textDir = isRTL(props.value) ? 'rtl' : 'ltr';
+
   return (
     <textarea
       {...props}
+      dir={textDir}
+      className={`rtl-support ${props.className || ''}`}
       onKeyDown={(e) => {
         handleKeyDown(e);
         props.onKeyDown?.(e);
@@ -140,7 +149,7 @@ export const ChatInput = () => {
           textAreaComponent={CustomTextArea}
           classes={{
             reactMde: "border-none bg-transparent",
-            textArea: "bg-transparent border-none focus:outline-none"
+            textArea: "bg-transparent border-none focus:outline-none rtl-support"
           }}
         />
         <div className="absolute right-2 bottom-2 flex gap-2">

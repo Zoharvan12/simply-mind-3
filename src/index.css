@@ -71,3 +71,26 @@
          hover:bg-white/60 hover:shadow-sm active:scale-95;
 }
 
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+.rtl-support {
+  unicode-bidi: plaintext;
+}
+
+.chat-message {
+  @apply rtl-support;
+}
+
+.prose.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.prose.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
