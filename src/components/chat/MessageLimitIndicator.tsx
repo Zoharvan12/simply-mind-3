@@ -28,17 +28,21 @@ export const MessageLimitIndicator = () => {
     // Subscribe to realtime changes
     const channel = supabase
       .channel('profile_changes')
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'profiles',
-        filter: async () => {
-          const { data: { user } } = await supabase.auth.getUser();
-          return `id=eq.${user?.id}`;
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            return user ? `id=eq.${user.id}` : '';
+          },
         },
-      }, (payload) => {
-        setMonthlyMessages(payload.new.monthly_messages);
-      })
+        (payload) => {
+          setMonthlyMessages(payload.new.monthly_messages);
+        }
+      )
       .subscribe();
 
     return () => {
