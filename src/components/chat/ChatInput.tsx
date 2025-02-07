@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Mic, Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
@@ -38,14 +38,14 @@ export const ChatInput = () => {
     }
   };
 
-  // Set up event listener for custom send event
-  useState(() => {
+  useEffect(() => {
     const handleCustomSend = () => {
       handleSendMessage();
     };
+    
     window.addEventListener('custom-send', handleCustomSend);
     return () => window.removeEventListener('custom-send', handleCustomSend);
-  });
+  }, [message]); // Add message as dependency since handleSendMessage uses it
 
   return (
     <div className="p-4 border-t">
