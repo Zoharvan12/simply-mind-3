@@ -190,6 +190,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_message_limit: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
       check_user_role: {
         Args: {
           user_id: string

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Mic, Send } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
@@ -7,6 +6,8 @@ import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const isRTL = (text: string) => {
   const rtlRegex = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
@@ -39,10 +40,29 @@ const CustomTextArea = (props: any) => {
 
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
+  const [messageCount, setMessageCount] = useState(0);
+  const { role } = useUserRole();
   const { sendMessage } = useMessagesStore();
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+
+  useEffect(() => {
+    const fetchMessageCount = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || role !== 'free') return;
+
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact' })
+        .eq('role', 'user')
+        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+
+      setMessageCount(count || 0);
+    };
+
+    fetchMessageCount();
+  }, [role]);
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -137,6 +157,15 @@ export const ChatInput = () => {
 
   return (
     <div className="p-4 border-t">
+      {role === 'free' && (
+        <div className="mb-2 px-2">
+          <div className="flex justify-between text-sm text-neutral-500 mb-1">
+            <span>Monthly message limit</span>
+            <span>{messageCount}/50 messages</span>
+          </div>
+          <Progress value={(messageCount / 50) * 100} className="h-1" />
+        </div>
+      )}
       <div className="relative glass-card rounded-lg">
         <ReactMde
           value={message}

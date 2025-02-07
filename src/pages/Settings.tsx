@@ -1,9 +1,9 @@
-
 import { MainLayout } from "@/components/MainLayout";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { AlertCircle, Settings as SettingsIcon, Trash, User } from "lucide-react";
+import { AlertCircle, Crown, Settings as SettingsIcon, Trash, User } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   Card,
   CardContent,
@@ -44,6 +44,8 @@ interface ProfileFormValues {
 const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [messageCount, setMessageCount] = useState(0);
+  const [daysUntilReset, setDaysUntilReset] = useState(0);
   const { toast } = useToast();
   const { role } = useUserRole();
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null } | null>(null);
@@ -54,6 +56,30 @@ const Settings = () => {
       lastName: "",
     },
   });
+
+  useEffect(() => {
+    const fetchMessageCount = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact' })
+        .eq('role', 'user')
+        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+
+      setMessageCount(count || 0);
+
+      // Calculate days until next month
+      const today = new Date();
+      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      setDaysUntilReset(lastDay - today.getDate());
+    };
+
+    if (role === 'free') {
+      fetchMessageCount();
+    }
+  }, [role]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -155,6 +181,49 @@ const Settings = () => {
           </div>
 
           <div className="space-y-6">
+            {/* Subscription Status Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Crown className="h-5 w-5" />
+                  Subscription Status
+                </CardTitle>
+                <CardDescription>
+                  {role === 'premium' 
+                    ? 'You have access to all premium features'
+                    : 'Upgrade to premium for unlimited messages and advanced features'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Current Plan</p>
+                      <p className="text-sm text-neutral-500 capitalize">{role}</p>
+                    </div>
+                    {role !== 'premium' && (
+                      <Button variant="default" className="bg-primary hover:bg-primary/90">
+                        Upgrade to Premium
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {role === 'free' && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Monthly Message Limit</span>
+                        <span>{messageCount}/50 messages</span>
+                      </div>
+                      <Progress value={(messageCount / 50) * 100} />
+                      <p className="text-xs text-neutral-500">
+                        Resets in {daysUntilReset} days
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Personal Information Card */}
             <Card>
               <CardHeader>
@@ -200,32 +269,6 @@ const Settings = () => {
                     </Button>
                   </form>
                 </Form>
-              </CardContent>
-            </Card>
-
-            {/* Subscription Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <SettingsIcon className="h-5 w-5" />
-                  Subscription
-                </CardTitle>
-                <CardDescription>
-                  Manage your subscription plan
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Current Plan</p>
-                      <p className="text-sm text-neutral-500 capitalize">{role || 'Loading...'}</p>
-                    </div>
-                    <Button variant="outline">
-                      {role === 'premium' ? 'Manage Subscription' : 'Upgrade to Premium'}
-                    </Button>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
