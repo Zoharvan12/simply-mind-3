@@ -40,25 +40,27 @@ export function CreateJournalDialog({
   const [content, setContent] = useState("");
   const [emotionRating, setEmotionRating] = useState([5]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const { toast } = useToast();
 
-  // Populate form when editing
+  // Populate form when editing and dialog opens
   useEffect(() => {
-    if (isEditing && editEntry) {
+    if (open && isEditing && editEntry) {
       setTitle(editEntry.title);
       setContent(editEntry.content);
       setEmotionRating([editEntry.emotion_rating]);
     }
-  }, [isEditing, editEntry]);
+  }, [open, isEditing, editEntry]);
 
-  // Reset form when dialog closes
+  // Reset form only when closing after successful submission
   useEffect(() => {
-    if (!open) {
+    if (!open && hasSubmitted) {
       setTitle("");
       setContent("");
       setEmotionRating([5]);
+      setHasSubmitted(false);
     }
-  }, [open]);
+  }, [open, hasSubmitted]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,9 +107,7 @@ export function CreateJournalDialog({
         });
       }
 
-      setTitle("");
-      setContent("");
-      setEmotionRating([5]);
+      setHasSubmitted(true);
       onOpenChange(false);
       onEntryCreated?.();
     } catch (error: any) {
