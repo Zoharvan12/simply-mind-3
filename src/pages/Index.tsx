@@ -25,6 +25,10 @@ const Index = () => {
     },
   });
 
+  const handleEntryModified = () => {
+    refetch();
+  };
+
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto">
@@ -63,7 +67,11 @@ const Index = () => {
             // Journal entries
             entries?.map((entry, index) => (
               <ScrollReveal key={entry.id} delay={index * 100}>
-                <JournalEntry entry={entry} />
+                <JournalEntry
+                  entry={entry}
+                  onEntryDeleted={handleEntryModified}
+                  onEntryUpdated={handleEntryModified}
+                />
               </ScrollReveal>
             ))
           )}
@@ -73,7 +81,7 @@ const Index = () => {
       <CreateJournalDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        onEntryCreated={() => refetch()}
+        onEntryCreated={handleEntryModified}
       />
     </MainLayout>
   );

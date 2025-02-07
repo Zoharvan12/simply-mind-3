@@ -12,22 +12,53 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreateJournalDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEntryCreated?: () => void;
+  isEditing?: boolean;
+  editEntry?: {
+    id: string;
+    title: string;
+    content: string;
+    emotion_rating: number;
+  };
 }
 
-export function CreateJournalDialog({ open, onOpenChange, onEntryCreated }: CreateJournalDialogProps) {
+export function CreateJournalDialog({
+  open,
+  onOpenChange,
+  onEntryCreated,
+  isEditing = false,
+  editEntry,
+}: CreateJournalDialogProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [emotionRating, setEmotionRating] = useState([5]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  // Populate form when editing
+  useEffect(() => {
+    if (isEditing && editEntry) {
+      setTitle(editEntry.title);
+      setContent(editEntry.content);
+      setEmotionRating([editEntry.emotion_rating]);
+    }
+  }, [isEditing, editEntry]);
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setTitle("");
+      setContent("");
+      setEmotionRating([5]);
+    }
+  }, [open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,19 +71,39 @@ export function CreateJournalDialog({ open, onOpenChange, onEntryCreated }: Crea
         throw new Error("You must be logged in to create a journal entry");
       }
 
-      const { error } = await supabase.from("journal_entries").insert({
-        title,
-        content,
-        emotion_rating: emotionRating[0],
-        user_id: user.id
-      });
+      if (isEditing && editEntry) {
+        // Update existing entry
+        const { error } = await supabase
+          .from("journal_entries")
+          .update({
+            title,
+            content,
+            emotion_rating: emotionRating[0],
+          })
+          .eq("id", editEntry.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Journal entry created successfully",
-      });
+        toast({
+          title: "Success",
+          description: "Journal entry updated successfully",
+        });
+      } else {
+        // Create new entry
+        const { error } = await supabase.from("journal_entries").insert({
+          title,
+          content,
+          emotion_rating: emotionRating[0],
+          user_id: user.id
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Journal entry created successfully",
+        });
+      }
 
       setTitle("");
       setContent("");
@@ -75,7 +126,7 @@ export function CreateJournalDialog({ open, onOpenChange, onEntryCreated }: Crea
       <DialogContent className="sm:max-w-[525px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>New Journal Entry</DialogTitle>
+            <DialogTitle>{isEditing ? "Edit Journal Entry" : "New Journal Entry"}</DialogTitle>
             <DialogDescription>
               Write your thoughts and feelings. Rate your emotional state on a scale of 1-10.
             </DialogDescription>
@@ -119,7 +170,7 @@ export function CreateJournalDialog({ open, onOpenChange, onEntryCreated }: Crea
           </div>
           <DialogFooter>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Entry"}
+              {isLoading ? (isEditing ? "Updating..." : "Creating...") : (isEditing ? "Update Entry" : "Create Entry")}
             </Button>
           </DialogFooter>
         </form>
