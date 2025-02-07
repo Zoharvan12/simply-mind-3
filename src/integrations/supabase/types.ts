@@ -131,6 +131,36 @@ export type Database = {
         }
         Relationships: []
       }
+      stats: {
+        Row: {
+          common_topics: string[]
+          created_at: string | null
+          emotion_intensity: number | null
+          id: string
+          overall_emotion: Database["public"]["Enums"]["emotion_type"]
+          summary: string
+          user_id: string
+        }
+        Insert: {
+          common_topics: string[]
+          created_at?: string | null
+          emotion_intensity?: number | null
+          id?: string
+          overall_emotion: Database["public"]["Enums"]["emotion_type"]
+          summary: string
+          user_id: string
+        }
+        Update: {
+          common_topics?: string[]
+          created_at?: string | null
+          emotion_intensity?: number | null
+          id?: string
+          overall_emotion?: Database["public"]["Enums"]["emotion_type"]
+          summary?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -206,6 +236,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "free" | "premium"
+      emotion_type: "positive" | "neutral" | "negative"
       message_role: "user" | "ai"
     }
     CompositeTypes: {
