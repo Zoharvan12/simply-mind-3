@@ -34,10 +34,17 @@ export function CreateJournalDialog({ open, onOpenChange, onEntryCreated }: Crea
     setIsLoading(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("You must be logged in to create a journal entry");
+      }
+
       const { error } = await supabase.from("journal_entries").insert({
         title,
         content,
         emotion_rating: emotionRating[0],
+        user_id: user.id
       });
 
       if (error) throw error;
