@@ -36,7 +36,46 @@ export const ChatControls = ({ onSend }: ChatControlsProps) => {
       }
     };
 
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const channel = supabase
+        .channel('profile_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${user.id}`
+          },
+          (payload) => {
+            if (payload.new && 'monthly_messages' in payload.new) {
+              setMonthlyMessages(payload.new.monthly_messages);
+            }
+          }
+        )
+        .subscribe();
+
+      return channel;
+    };
+
+    // Initialize both the message count and realtime subscription
     fetchMessageCount();
+    let channel: ReturnType<typeof supabase.channel>;
+    
+    setupRealtimeSubscription().then(subscribedChannel => {
+      if (subscribedChannel) {
+        channel = subscribedChannel;
+      }
+    });
+
+    return () => {
+      if (channel) {
+        channel.unsubscribe();
+      }
+    };
   }, [role]);
 
   const SendButton = () => (
