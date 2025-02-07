@@ -1,145 +1,118 @@
+import create from 'zustand';
+import { supabase } from "@/integrations/supabase/client";
+import { Chat } from "@/stores/messages/types";
+import { toast } from "sonner";
 
-import { create } from 'zustand';
-import { MessagesState, Message, Chat } from './messages/types';
-import { createNewChat, fetchChats, renameChat, deleteChat } from './messages/chatOperations';
-import { fetchMessages, sendMessage } from './messages/messageOperations';
-
-interface MessagesStore extends MessagesState {
-  setMessages: (messages: Message[]) => void;
-  setChats: (chats: Chat[]) => void;
-  setCurrentChatId: (chatId: string | null) => void;
-  addMessage: (message: Message) => void;
-  updateChat: (chat: Chat) => void;
-  createNewChat: () => Promise<string>;
+interface MessagesState {
+  chats: Chat[];
+  currentChatId: string | null;
+  messageCount: number;
+  messages: any[];
   fetchChats: () => Promise<void>;
+  createNewChat: () => Promise<string>;
   fetchMessages: (chatId: string) => Promise<void>;
-  sendMessage: (content: string) => Promise<void>;
   renameChat: (chatId: string, newTitle: string) => Promise<void>;
   deleteChat: (chatId: string) => Promise<void>;
+  updateChat: (chat: Chat) => void;
 }
 
-export const useMessagesStore = create<MessagesStore>((set, get) => ({
-  messages: [],
+export const useMessagesStore = create<MessagesState>((set, get) => ({
   chats: [],
   currentChatId: null,
-  isLoading: false,
-  
-  setMessages: (messages) => set({ messages }),
-  setChats: (chats) => set({ chats }),
-  setCurrentChatId: (chatId) => set({ currentChatId: chatId }),
-  addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
-  
-  updateChat: (updatedChat) => {
-    console.log('Updating chat in store:', updatedChat);
-    set((state) => ({
-      chats: state.chats.map(chat => 
-        chat.id === updatedChat.id ? updatedChat : chat
-      )
-    }));
+  messageCount: 0,
+  messages: [],
+
+  fetchChats: async () => {
+    try {
+      const { data: chats, error } = await supabase.from('chats').select('*');
+      if (error) throw error;
+      set({ chats: chats || [] });
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+      toast.error('Failed to fetch chats');
+    }
   },
 
   createNewChat: async () => {
-    const { newChats, chatId } = await createNewChat(get().chats);
-    set({ chats: newChats });
-    return chatId;
-  },
-
-  fetchChats: async () => {
-    const chats = await fetchChats();
-    set({ chats });
-  },
-
-  fetchMessages: async (chatId: string) => {
     try {
-      set({ isLoading: true });
-      const messages = await fetchMessages(chatId);
-      set({ messages, currentChatId: chatId });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  sendMessage: async (content: string) => {
-    const { currentChatId, messages, addMessage } = get();
-    let chatId = currentChatId;
-    let isFirstMessage = false;
-
-    if (!chatId) {
-      try {
-        chatId = await get().createNewChat();
-        set({ currentChatId: chatId });
-        isFirstMessage = true;
-      } catch (error) {
-        return;
-      }
-    }
-
-    // Add user message immediately with a temporary ID
-    const tempUserMessage: Message = {
-      id: `temp-${Date.now()}`,
-      chat_id: chatId,
-      role: 'user',
-      content,
-      created_at: new Date().toISOString(),
-    };
-    addMessage(tempUserMessage);
-
-    // Add AI "thinking" message
-    const tempAiMessage: Message = {
-      id: 'thinking',
-      chat_id: chatId,
-      role: 'ai',
-      content: '',
-      created_at: new Date().toISOString(),
-      isLoading: true,
-    };
-    addMessage(tempAiMessage);
-
-    try {
-      const { userMessage, aiMessage } = await sendMessage(content, chatId, messages);
-      
-      // Update messages list: remove temporary messages and add actual ones
+      const { data: newChat, error } = await supabase.from('chats').insert({ title: 'New Chat' }).single();
+      if (error) throw error;
       set((state) => ({
-        messages: state.messages
-          .filter(m => m.id !== 'thinking' && m.id !== tempUserMessage.id)
-          .concat([userMessage, aiMessage])
+        chats: [...state.chats, newChat],
+        currentChatId: newChat.id,
       }));
-      
-      // Only fetch chats if this was the first message
-      if (isFirstMessage) {
-        await get().fetchChats();
-      }
+      return newChat.id;
     } catch (error) {
-      // Remove thinking message but keep the user message in case of error
-      set((state) => ({
-        messages: state.messages.filter(m => m.id !== 'thinking')
-      }));
+      console.error('Error creating new chat:', error);
+      toast.error('Failed to create new chat');
       throw error;
     }
   },
 
+  fetchMessages: async (chatId: string) => {
+    try {
+      const { data: messages, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('chat_id', chatId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Count user messages for the current month
+      const { data: monthlyCount } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact' })
+        .eq('role', 'user')
+        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+
+      set({ 
+        messages: messages || [],
+        currentChatId: chatId,
+        messageCount: monthlyCount?.length || 0
+      });
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      toast.error('Failed to fetch messages');
+    }
+  },
+
   renameChat: async (chatId: string, newTitle: string) => {
-    const success = await renameChat(chatId, newTitle);
-    if (success) {
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .update({ title: newTitle })
+        .eq('id', chatId);
+      if (error) throw error;
       set((state) => ({
-        chats: state.chats.map(chat => 
-          chat.id === chatId ? { ...chat, title: newTitle } : chat
-        )
+        chats: state.chats.map(chat => chat.id === chatId ? { ...chat, title: newTitle } : chat)
       }));
+    } catch (error) {
+      console.error('Error renaming chat:', error);
+      toast.error('Failed to rename chat');
     }
   },
 
   deleteChat: async (chatId: string) => {
-    const success = await deleteChat(chatId);
-    if (success) {
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .delete()
+        .eq('id', chatId);
+      if (error) throw error;
       set((state) => ({
         chats: state.chats.filter(chat => chat.id !== chatId),
-        ...(state.currentChatId === chatId ? {
-          currentChatId: null,
-          messages: []
-        } : {})
+        currentChatId: state.currentChatId === chatId ? null : state.currentChatId,
       }));
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      toast.error('Failed to delete chat');
     }
   },
-}));
 
+  updateChat: (chat: Chat) => {
+    set((state) => ({
+      chats: state.chats.map(c => c.id === chat.id ? chat : c)
+    }));
+  },
+}));
