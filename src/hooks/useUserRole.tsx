@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from "sonner";
 
 export type UserRole = 'admin' | 'free' | 'premium';
 
@@ -17,22 +18,27 @@ export function useUserRole() {
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
+        setIsLoading(true);
+        setError(null);
+
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
           setRole(null);
           setIsAdmin(false);
-          setIsLoading(false);
           return;
         }
 
-        // Get user role
+        // Get user role with error handling
         const { data: roleData, error: rpcError } = await supabase
           .rpc('check_user_role', {
             user_id: user.id
           });
 
-        if (rpcError) throw rpcError;
+        if (rpcError) {
+          console.error('RPC Error:', rpcError);
+          throw new Error('Failed to fetch user role');
+        }
         
         // Validate role data
         if (!roleData || !isValidUserRole(roleData)) {
@@ -43,15 +49,28 @@ export function useUserRole() {
         // Set the validated role
         setRole(roleData);
         
-        // Set admin status only if role is explicitly 'admin'
+        // Strict admin check
         const isUserAdmin = roleData === 'admin';
         setIsAdmin(isUserAdmin);
 
+        // Additional verification for admin status
+        if (isUserAdmin) {
+          const { data: adminCheck, error: adminError } = await supabase
+            .rpc('is_admin');
+            
+          if (adminError || !adminCheck) {
+            console.error('Admin verification failed:', adminError);
+            setIsAdmin(false);
+            throw new Error('Admin verification failed');
+          }
+        }
+
       } catch (err: any) {
-        console.error('Error fetching user role:', err);
+        console.error('Error in useUserRole:', err);
         setError(err.message);
         setRole(null);
         setIsAdmin(false);
+        toast.error("Failed to verify user role");
       } finally {
         setIsLoading(false);
       }

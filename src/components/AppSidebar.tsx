@@ -14,6 +14,7 @@ import {
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const menuItems = [
   {
@@ -34,7 +35,7 @@ const menuItems = [
 ];
 
 export function AppSidebar() {
-  const { role, isAdmin } = useUserRole();
+  const { role, isLoading, isAdmin } = useUserRole();
   const navigate = useNavigate();
   
   const handleSignOut = async () => {
@@ -46,6 +47,26 @@ export function AppSidebar() {
       console.error("Error signing out:", error);
       toast.error("Failed to sign out");
     }
+  };
+
+  const renderWelcomeMessage = () => {
+    if (isLoading) {
+      return (
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <h2 className="text-lg font-medium text-[#2A3D66]">
+          Hello, {role === "free" ? "Friend" : "Premium User"}
+        </h2>
+        <p className="text-sm text-neutral-500">Welcome back</p>
+      </>
+    );
   };
   
   return (
@@ -60,10 +81,7 @@ export function AppSidebar() {
 
         {/* Welcome Message */}
         <div className="px-6 py-4">
-          <h2 className="text-lg font-medium text-[#2A3D66]">
-            Hello, {role === "free" ? "Friend" : "Premium User"}
-          </h2>
-          <p className="text-sm text-neutral-500">Welcome back</p>
+          {renderWelcomeMessage()}
         </div>
 
         {/* Navigation Menu */}
@@ -90,7 +108,7 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          {isAdmin && (
+          {isAdmin && !isLoading && (
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link
