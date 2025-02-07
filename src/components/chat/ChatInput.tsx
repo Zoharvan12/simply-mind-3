@@ -1,10 +1,12 @@
 
 import { Button } from "@/components/ui/button";
-import { Mic, Send } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Mic, MicOff, Send } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const CustomTextArea = (props: any) => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -29,12 +31,89 @@ const CustomTextArea = (props: any) => {
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
   const { sendMessage } = useMessagesStore();
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const handleSendMessage = async () => {
     if (message.trim()) {
       const currentMessage = message.trim();
       setMessage(""); // Clear input immediately
       await sendMessage(currentMessage);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+
+    } catch (error) {
+      console.error("Error accessing microphone:", error);
+      toast.error("Could not access microphone. Please check permissions.");
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!mediaRecorderRef.current) return;
+
+    return new Promise<void>((resolve) => {
+      if (!mediaRecorderRef.current) return resolve();
+
+      mediaRecorderRef.current.onstop = async () => {
+        try {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          
+          // Convert blob to base64
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = async () => {
+            const base64Audio = reader.result as string;
+            const base64Data = base64Audio.split(',')[1]; // Remove data URL prefix
+
+            const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+              body: { audio: base64Data }
+            });
+
+            if (error) {
+              throw error;
+            }
+
+            if (data?.text) {
+              setMessage(data.text);
+            }
+          };
+        } catch (error) {
+          console.error("Error transcribing audio:", error);
+          toast.error("Error transcribing audio. Please try again.");
+        }
+
+        // Clean up
+        mediaRecorderRef.current?.stream.getTracks().forEach(track => track.stop());
+        setIsRecording(false);
+        resolve();
+      };
+
+      mediaRecorderRef.current.stop();
+    });
+  };
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      await stopRecording();
+    } else {
+      await startRecording();
     }
   };
 
@@ -67,9 +146,15 @@ export const ChatInput = () => {
         <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 
             size="icon" 
-            variant="ghost"
+            variant={isRecording ? "destructive" : "ghost"}
+            onClick={toggleRecording}
+            className={`transition-all duration-200 ${isRecording ? 'animate-pulse' : ''}`}
           >
-            <Mic className="h-5 w-5 text-neutral-500" />
+            {isRecording ? (
+              <MicOff className="h-5 w-5 text-white" />
+            ) : (
+              <Mic className="h-5 w-5 text-neutral-500" />
+            )}
           </Button>
           <Button 
             size="icon"
