@@ -1,5 +1,6 @@
 
 import { Home, MessageSquare, BarChart2, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -58,13 +59,13 @@ export function AppSidebar() {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a
-                      href={item.href}
+                    <Link
+                      to={item.href}
                       className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900"
                     >
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -77,13 +78,13 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a
-                href="/settings"
+              <Link
+                to="/settings"
                 className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900"
               >
                 <Settings className="h-5 w-5" />
                 <span>Settings</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
