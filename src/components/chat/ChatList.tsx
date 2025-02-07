@@ -65,23 +65,25 @@ export const ChatList = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="p-4">
-        <Button className="w-full bg-gradient-elegant" size="lg" onClick={handleNewChat}>
-          <Plus className="mr-2" />
+      <div className="p-6">
+        <Button 
+          className="w-full elegant-gradient text-lg font-medium rounded-xl py-6" 
+          onClick={handleNewChat}
+        >
+          <Plus className="mr-2 h-5 w-5" />
           New Chat
         </Button>
       </div>
       <ScrollArea className="flex-1 px-4">
-        <div className="space-y-2">
+        <div className="space-y-3 pb-6">
           {chats.map((chat) => (
             <div 
               key={chat.id}
               className={cn(
-                "glass-card p-3 group relative cursor-pointer",
+                "glass-card group relative cursor-pointer",
                 currentChatId === chat.id && "selected"
               )}
               onClick={(e) => {
-                // Only fetch messages if we didn't click on an action button
                 if (!(e.target as HTMLElement).closest('.chat-actions')) {
                   fetchMessages(chat.id);
                 }
@@ -94,24 +96,31 @@ export const ChatList = () => {
                   onChange={(e) => setEditTitle(e.target.value)}
                   onBlur={() => handleRename(chat.id)}
                   onKeyDown={(e) => handleKeyDown(e, chat.id)}
-                  className="w-full bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-primary rounded px-1"
+                  className="w-full bg-transparent border-none focus:outline-none focus:ring-1 
+                           focus:ring-primary rounded px-2 py-1 text-base"
                   autoFocus
                 />
               ) : (
                 <>
                   <div className="pr-16">
-                    <h3 className="font-medium text-sm text-neutral-700">{chat.title}</h3>
-                    <p className="text-xs text-neutral-500 mt-1 truncate">
-                      {new Date(chat.created_at).toLocaleDateString()}
+                    <h3 className="font-medium text-base text-neutral-700">{chat.title}</h3>
+                    <p className="text-sm text-neutral-500 mt-2">
+                      {new Date(chat.created_at).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
                     </p>
                   </div>
-                  <div className="chat-actions absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                  <div className="chat-actions absolute right-3 top-1/2 -translate-y-1/2 
+                                opacity-0 group-hover:opacity-100 transition-opacity 
+                                flex items-center gap-2">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         startEditing(chat);
                       }}
-                      className="p-1 rounded-sm hover:bg-primary/10 transition-colors"
+                      aria-label="Edit chat"
                     >
                       <Edit2 className="h-4 w-4 text-primary/70 hover:text-primary transition-colors" />
                     </button>
@@ -120,7 +129,7 @@ export const ChatList = () => {
                         e.stopPropagation();
                         setDeletingChatId(chat.id);
                       }}
-                      className="p-1 rounded-sm hover:bg-red-100 transition-colors"
+                      aria-label="Delete chat"
                     >
                       <Trash2 className="h-4 w-4 text-red-500/70 hover:text-red-500 transition-colors" />
                     </button>
@@ -133,7 +142,7 @@ export const ChatList = () => {
       </ScrollArea>
 
       <AlertDialog open={!!deletingChatId} onOpenChange={(open) => !open && setDeletingChatId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white/80 backdrop-blur-sm border border-white/20">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete this chat?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -141,8 +150,11 @@ export const ChatList = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600">
+            <AlertDialogCancel className="hover:bg-neutral-100">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete} 
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -6,12 +6,17 @@ import { ChatInterface } from "@/components/chat/ChatInterface";
 const Chats = () => {
   return (
     <MainLayout>
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-[1200px] mx-auto px-6">
         <ScrollReveal>
-          <div className="flex items-center mb-6">
+          <div className="flex items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-[#2A3D66]">AI Chats</h1>
-              <p className="text-neutral-500 mt-1">Have meaningful conversations with AI</p>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary 
+                           bg-clip-text text-transparent">
+                AI Chats
+              </h1>
+              <p className="text-neutral-500 mt-2 text-lg">
+                Have meaningful conversations with AI
+              </p>
             </div>
           </div>
         </ScrollReveal>

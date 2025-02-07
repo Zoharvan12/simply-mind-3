@@ -44,21 +44,30 @@
 }
 
 .glass-card {
-  @apply bg-white/60 backdrop-blur-sm border border-white/20 shadow-sm transition-all duration-300;
+  @apply bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl p-4 
+         transition-all duration-300 hover:bg-white/50 hover:shadow-lg 
+         hover:border-white/30 hover:scale-[1.02];
 }
 
 .glass-card.selected {
-  @apply bg-primary-light/40 border-2 border-primary shadow-md;
+  @apply bg-primary-light/20 border-2 border-primary/30 shadow-lg;
 }
 
 .elegant-gradient {
-  @apply bg-gradient-elegant text-white;
+  @apply bg-gradient-to-r from-primary to-secondary text-white 
+         shadow-md hover:shadow-lg transition-all duration-300;
 }
 
 .card-gradient {
-  @apply bg-gradient-card;
+  background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
 }
 
 .backdrop-blur-sm {
   backdrop-filter: blur(8px);
 }
+
+.chat-actions button {
+  @apply rounded-full p-2 transition-all duration-200 
+         hover:bg-white/60 hover:shadow-sm active:scale-95;
+}
+
