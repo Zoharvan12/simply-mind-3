@@ -26,17 +26,21 @@ export const ChatInterface = () => {
       
       <ResizablePanel defaultSize={75}>
         <div className="flex flex-col h-full">
-          <div className="border-b px-4 py-3">
-            <h2 className="text-base font-medium text-[#2A3D66] mb-2">{chatTitle}</h2>
-            {role === 'free' && (
-              <div>
-                <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
-                  <span>Monthly message limit</span>
-                  <span>{messageCount}/50 messages</span>
+          <div className="border-b">
+            <div className="px-4 py-3 space-y-2">
+              <h2 className="text-base font-medium text-[#2A3D66] truncate max-w-[calc(100%-2rem)]">
+                {chatTitle}
+              </h2>
+              {role === 'free' && (
+                <div className="max-w-md">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
+                    <span>Monthly message limit</span>
+                    <span>{messageCount}/50 messages</span>
+                  </div>
+                  <Progress value={(messageCount / 50) * 100} className="h-1" />
                 </div>
-                <Progress value={(messageCount / 50) * 100} className="h-1" />
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <div className="flex-1 min-h-0">
             <ChatMessages />
