@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LandingPageSection, LandingPageContent } from "@/types/landing-page";
+import { LandingPageContent, LandingPageData } from "@/types/landing-page";
 
 export const useLandingPage = (language: "en" | "he" = "en") => {
   const [content, setContent] = useState<LandingPageContent | null>(null);
@@ -18,12 +18,13 @@ export const useLandingPage = (language: "en" | "he" = "en") => {
         if (error) throw error;
 
         if (data) {
-          const formattedData = data.reduce((acc, item: LandingPageSection) => {
-            acc[item.section] = language === "en" ? item.content : item.content_he || item.content;
+          const formattedData = data.reduce((acc, item: LandingPageData) => {
+            const contentData = language === "en" ? item.content : item.content_he || item.content;
+            acc[item.section] = contentData as Record<string, any>;
             return acc;
-          }, {} as Record<string, any>);
+          }, {} as Record<string, any>) as LandingPageContent;
 
-          setContent(formattedData as LandingPageContent);
+          setContent(formattedData);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");

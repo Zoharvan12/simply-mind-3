@@ -9,6 +9,8 @@ export type LandingPageSection = {
   created_at: string;
 };
 
+export type LandingPageData = Database['public']['Tables']['landing_page']['Row'];
+
 export type LandingPageContent = {
   hero: {
     headline: string;
