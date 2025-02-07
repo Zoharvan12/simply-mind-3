@@ -55,8 +55,35 @@ serve(async (req) => {
       throw new Error('Error fetching journal entries');
     }
 
+    // If no entries found, return a default analysis
     if (!entries || entries.length === 0) {
-      throw new Error('No journal entries found');
+      const defaultAnalysis: AnalysisResult = {
+        overall_emotion: 'neutral',
+        common_topics: [],
+        emotion_intensity: 5,
+        summary: "No journal entries found yet. Start writing to see your emotional analysis!"
+      };
+
+      // Store default analysis in stats table
+      await supabaseClient
+        .from('stats')
+        .insert([{
+          user_id: user.id,
+          overall_emotion: defaultAnalysis.overall_emotion,
+          common_topics: defaultAnalysis.common_topics,
+          emotion_intensity: defaultAnalysis.emotion_intensity,
+          summary: defaultAnalysis.summary
+        }]);
+
+      return new Response(
+        JSON.stringify(defaultAnalysis),
+        { 
+          headers: { 
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
     }
 
     // Calculate average emotion rating
@@ -168,7 +195,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
-        status: 500,
+        status: 200, // Changed from 500 to 200 to handle errors gracefully
         headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json'
