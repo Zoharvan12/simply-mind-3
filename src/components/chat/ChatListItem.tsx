@@ -58,7 +58,7 @@ export const ChatListItem = ({
               className="font-medium text-sm text-neutral-700 truncate"
               title={chat.title}
             >
-              {chat.title}
+              {chat.title.length > 20 ? `${chat.title.substring(0, 20)}...` : chat.title}
             </h3>
             <p className="text-xs text-neutral-500 mt-1 truncate">
               {new Date(chat.created_at).toLocaleDateString(undefined, {
