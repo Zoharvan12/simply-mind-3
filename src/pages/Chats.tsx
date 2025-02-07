@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const Chats = () => {
-  const [messageCount, setMessageCount] = useState(0);
+  const [monthlyMessages, setMonthlyMessages] = useState(0);
   const { role } = useUserRole();
 
   useEffect(() => {
@@ -15,13 +15,15 @@ const Chats = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || role !== 'free') return;
 
-      const { count } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact' })
-        .eq('role', 'user')
-        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('monthly_messages')
+        .eq('id', user.id)
+        .single();
 
-      setMessageCount(count || 0);
+      if (!error && profile) {
+        setMonthlyMessages(profile.monthly_messages);
+      }
     };
 
     fetchMessageCount();
@@ -42,7 +44,7 @@ const Chats = () => {
               </p>
             </div>
             {role === 'free' && (
-              <MessageLimitIndicator messageCount={messageCount} />
+              <MessageLimitIndicator messageCount={monthlyMessages} />
             )}
           </div>
         </ScrollReveal>

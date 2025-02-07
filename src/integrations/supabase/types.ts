@@ -115,21 +115,24 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
-          message_count: number
+          monthly_messages: number
+          total_messages: number
           updated_at: string
         }
         Insert: {
           first_name?: string | null
           id: string
           last_name?: string | null
-          message_count?: number
+          monthly_messages?: number
+          total_messages?: number
           updated_at?: string
         }
         Update: {
           first_name?: string | null
           id?: string
           last_name?: string | null
-          message_count?: number
+          monthly_messages?: number
+          total_messages?: number
           updated_at?: string
         }
         Relationships: []
@@ -241,6 +244,10 @@ export type Database = {
           user_id: string
         }
         Returns: boolean
+      }
+      reset_monthly_messages: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

@@ -8,7 +8,7 @@ import { ProfileForm } from "@/components/settings/ProfileForm";
 import { DangerZone } from "@/components/settings/DangerZone";
 
 const Settings = () => {
-  const [messageCount, setMessageCount] = useState(0);
+  const [monthlyMessages, setMonthlyMessages] = useState(0);
   const [daysUntilReset, setDaysUntilReset] = useState(0);
   const { role } = useUserRole();
   const [profile, setProfile] = useState<{ first_name: string | null; last_name: string | null } | null>(null);
@@ -18,13 +18,16 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { count } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact' })
-        .eq('role', 'user')
-        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('monthly_messages, first_name, last_name')
+        .eq('id', user.id)
+        .single();
 
-      setMessageCount(count || 0);
+      if (!error && profileData) {
+        setMonthlyMessages(profileData.monthly_messages);
+        setProfile(profileData);
+      }
 
       // Calculate days until next month
       const today = new Date();
@@ -36,28 +39,6 @@ const Settings = () => {
       fetchMessageCount();
     }
   }, [role]);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data: profileData, error } = await supabase
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', user.id)
-          .single();
-
-        if (error) throw error;
-        setProfile(profileData);
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-      }
-    };
-
-    fetchProfile();
-  }, []);
 
   return (
     <MainLayout>
@@ -73,7 +54,7 @@ const Settings = () => {
           <div className="space-y-6">
             <SubscriptionCard
               role={role}
-              messageCount={messageCount}
+              messageCount={monthlyMessages}
               daysUntilReset={daysUntilReset}
             />
             <ProfileForm initialData={profile} />
