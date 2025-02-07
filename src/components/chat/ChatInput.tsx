@@ -6,6 +6,26 @@ import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
 
+const CustomTextArea = (props: any) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const event = new Event('custom-send');
+      window.dispatchEvent(event);
+    }
+  };
+
+  return (
+    <textarea
+      {...props}
+      onKeyDown={(e) => {
+        handleKeyDown(e);
+        props.onKeyDown?.(e);
+      }}
+    />
+  );
+};
+
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
   const { sendMessage } = useMessagesStore();
@@ -18,12 +38,14 @@ export const ChatInput = () => {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+  // Set up event listener for custom send event
+  useState(() => {
+    const handleCustomSend = () => {
       handleSendMessage();
-    }
-  };
+    };
+    window.addEventListener('custom-send', handleCustomSend);
+    return () => window.removeEventListener('custom-send', handleCustomSend);
+  });
 
   return (
     <div className="p-4 border-t">
@@ -36,7 +58,7 @@ export const ChatInput = () => {
             Promise.resolve(markdown)
           }
           toolbarCommands={[]}
-          onKeyDown={handleKeyDown}
+          textAreaComponent={CustomTextArea}
           classes={{
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
