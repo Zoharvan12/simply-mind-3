@@ -10,6 +10,7 @@ const corsHeaders = {
 interface JournalEntry {
   content: string;
   created_at: string;
+  emotion_rating: number;
 }
 
 interface AnalysisResult {
@@ -42,10 +43,10 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    // Fetch recent journal entries
+    // Fetch recent journal entries with emotion ratings
     const { data: entries, error: entriesError } = await supabaseClient
       .from('journal_entries')
-      .select('content, created_at')
+      .select('content, created_at, emotion_rating')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(10);
@@ -58,9 +59,17 @@ serve(async (req) => {
       throw new Error('No journal entries found');
     }
 
+    // Calculate average emotion rating
+    const totalRating = entries.reduce((sum, entry) => sum + entry.emotion_rating, 0);
+    const averageRating = Math.round(totalRating / entries.length);
+
+    console.log('Average emotion rating:', averageRating);
+
     // Format entries for GPT analysis
     const entriesText = entries
-      .map((entry: JournalEntry) => `Entry (${entry.created_at}): ${entry.content}`)
+      .map((entry: JournalEntry) => 
+        `Entry (${entry.created_at}) [Emotion Rating: ${entry.emotion_rating}]: ${entry.content}`
+      )
       .join('\n\n');
 
     // Analyze with GPT-4o
@@ -79,13 +88,12 @@ serve(async (req) => {
 {
   "overall_emotion": one of ["positive", "neutral", "negative"],
   "common_topics": array of strings,
-  "emotion_intensity": number from 1 to 10,
   "summary": string with brief analysis
 }`
           },
           {
             role: 'user',
-            content: `Analyze these journal entries:\n${entriesText}`
+            content: `Analyze these journal entries and their emotion ratings:\n${entriesText}`
           }
         ],
       }),
@@ -106,7 +114,13 @@ serve(async (req) => {
     console.log('Cleaned response:', rawResponse);
     
     try {
-      const analysis: AnalysisResult = JSON.parse(rawResponse);
+      const gptAnalysis = JSON.parse(rawResponse);
+      
+      // Combine GPT analysis with calculated average rating
+      const analysis: AnalysisResult = {
+        ...gptAnalysis,
+        emotion_intensity: averageRating // Use the calculated average instead of GPT's assessment
+      };
 
       // Validate the analysis object
       if (
