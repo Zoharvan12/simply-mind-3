@@ -1,4 +1,3 @@
-
 import { Chat } from "@/stores/messages/types";
 import { Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -55,7 +54,12 @@ export const ChatListItem = ({
       ) : (
         <>
           <div className="pr-14">
-            <h3 className="font-medium text-sm text-neutral-700 truncate">{chat.title}</h3>
+            <h3 
+              className="font-medium text-sm text-neutral-700 truncate"
+              title={chat.title} // Show full title on hover
+            >
+              {chat.title.length > 40 ? `${chat.title.substring(0, 40)}...` : chat.title}
+            </h3>
             <p className="text-xs text-neutral-500 mt-1">
               {new Date(chat.created_at).toLocaleDateString(undefined, {
                 year: 'numeric',
