@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { MessagesState, Message, Chat } from './messages/types';
 import { createNewChat, fetchChats, renameChat, deleteChat } from './messages/chatOperations';
@@ -51,11 +52,13 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   sendMessage: async (content: string) => {
     const { currentChatId, messages, addMessage } = get();
     let chatId = currentChatId;
+    let isFirstMessage = false;
 
     if (!chatId) {
       try {
         chatId = await get().createNewChat();
         set({ currentChatId: chatId });
+        isFirstMessage = true;
       } catch (error) {
         return;
       }
@@ -83,17 +86,16 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     addMessage(tempAiMessage);
 
     try {
-      const { message, isFirstMessage } = await sendMessage(content, chatId, messages);
+      const { message } = await sendMessage(content, chatId, messages);
       
       // Update messages list: remove temporary messages and add actual ones
       set((state) => ({
         messages: state.messages
           .filter(m => m.id !== 'thinking' && m.id !== tempUserMessage.id)
-          .concat([message])
+          .concat([tempUserMessage, message])
       }));
       
-      await get().fetchMessages(chatId);
-      
+      // Only fetch chats if this was the first message
       if (isFirstMessage) {
         await get().fetchChats();
       }
