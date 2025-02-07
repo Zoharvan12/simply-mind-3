@@ -98,18 +98,26 @@ Based on this context, provide supportive and relevant responses. If the user se
       const generatedTitle = titleData.choices[0].message.content.trim();
       console.log('Generated title:', generatedTitle);
 
-      // Update chat title
-      const { error: updateError } = await supabase
-        .from('chats')
-        .update({ title: generatedTitle })
-        .eq('id', chatId);
+      // Only update chat title if it's for a chat (not for journal entries)
+      if (chatId !== 'temp') {
+        const { error: updateError } = await supabase
+          .from('chats')
+          .update({ title: generatedTitle })
+          .eq('id', chatId);
 
-      if (updateError) {
-        console.error('Error updating chat title:', updateError);
-        throw new Error('Failed to update chat title');
+        if (updateError) {
+          console.error('Error updating chat title:', updateError);
+          throw new Error('Failed to update chat title');
+        }
+        
+        console.log('Successfully updated chat title');
       }
       
-      console.log('Successfully updated chat title');
+      // Return the generated title in both cases
+      return new Response(
+        JSON.stringify({ message: generatedTitle }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Get AI response
