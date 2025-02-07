@@ -75,19 +75,17 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AI that analyzes journal entries to provide emotional insights. 
-            Analyze the entries and return ONLY a JSON object with these exact fields:
-            {
-              "overall_emotion": "positive" or "neutral" or "negative",
-              "common_topics": array of strings,
-              "emotion_intensity": number between 1-10,
-              "summary": string with brief analysis
-            }`
+            content: `You are an emotional analysis AI. Return ONLY a raw JSON object (no markdown, no code blocks) with these exact fields:
+{
+  "overall_emotion": one of ["positive", "neutral", "negative"],
+  "common_topics": array of strings,
+  "emotion_intensity": number from 1 to 10,
+  "summary": string with brief analysis
+}`
           },
           {
             role: 'user',
-            content: `Analyze these journal entries and provide emotional insights:
-            ${entriesText}`
+            content: `Analyze these journal entries:\n${entriesText}`
           }
         ],
       }),
@@ -100,33 +98,56 @@ serve(async (req) => {
       throw new Error('Invalid GPT response');
     }
 
-    // Parse GPT response - ensure it's valid JSON
-    const analysis: AnalysisResult = JSON.parse(gptData.choices[0].message.content.trim());
+    // Clean and parse the response
+    const rawResponse = gptData.choices[0].message.content
+      .replace(/```json\s*|\s*```/g, '') // Remove any markdown code blocks
+      .trim();
+    
+    console.log('Cleaned response:', rawResponse);
+    
+    try {
+      const analysis: AnalysisResult = JSON.parse(rawResponse);
 
-    // Store analysis in stats table
-    const { error: statsError } = await supabaseClient
-      .from('stats')
-      .insert([{
-        user_id: user.id,
-        overall_emotion: analysis.overall_emotion,
-        common_topics: analysis.common_topics,
-        emotion_intensity: analysis.emotion_intensity,
-        summary: analysis.summary
-      }]);
-
-    if (statsError) {
-      throw new Error('Error storing analysis results');
-    }
-
-    return new Response(
-      JSON.stringify(analysis),
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
+      // Validate the analysis object
+      if (
+        !analysis.overall_emotion ||
+        !Array.isArray(analysis.common_topics) ||
+        typeof analysis.emotion_intensity !== 'number' ||
+        !analysis.summary
+      ) {
+        throw new Error('Invalid analysis format');
       }
-    );
+
+      // Store analysis in stats table
+      const { error: statsError } = await supabaseClient
+        .from('stats')
+        .insert([{
+          user_id: user.id,
+          overall_emotion: analysis.overall_emotion,
+          common_topics: analysis.common_topics,
+          emotion_intensity: analysis.emotion_intensity,
+          summary: analysis.summary
+        }]);
+
+      if (statsError) {
+        throw new Error('Error storing analysis results');
+      }
+
+      return new Response(
+        JSON.stringify(analysis),
+        { 
+          headers: { 
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+    } catch (parseError) {
+      console.error('Error parsing GPT response:', parseError);
+      console.error('Raw response was:', rawResponse);
+      throw new Error('Failed to parse GPT response');
+    }
 
   } catch (error) {
     console.error('Error in analyze-journal-entries function:', error);
