@@ -27,7 +27,7 @@ export const MessageLimitIndicator = () => {
 
     const setupRealtimeSubscription = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) return null;
 
       const channel = supabase
         .channel('profile_changes')
