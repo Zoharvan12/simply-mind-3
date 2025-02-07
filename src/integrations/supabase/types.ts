@@ -39,30 +39,6 @@ export type Database = {
         }
         Relationships: []
       }
-      journal_prompts: {
-        Row: {
-          category: string | null
-          created_at: string
-          description: string
-          id: string
-          title: string
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string
-          description: string
-          id?: string
-          title: string
-        }
-        Update: {
-          category?: string | null
-          created_at?: string
-          description?: string
-          id?: string
-          title?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           first_name: string | null
