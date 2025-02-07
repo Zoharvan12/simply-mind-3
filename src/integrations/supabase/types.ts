@@ -68,6 +68,30 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_page: {
+        Row: {
+          content: Json
+          content_he: Json | null
+          created_at: string
+          id: string
+          section: string
+        }
+        Insert: {
+          content: Json
+          content_he?: Json | null
+          created_at?: string
+          id?: string
+          section: string
+        }
+        Update: {
+          content?: Json
+          content_he?: Json | null
+          created_at?: string
+          id?: string
+          section?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           chat_id: string
