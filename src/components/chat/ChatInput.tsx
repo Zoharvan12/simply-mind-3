@@ -35,6 +35,18 @@ export const ChatInput = () => {
     }
   };
 
+  // Add event listener for the custom send event
+  useEffect(() => {
+    const handleCustomSend = () => {
+      handleSendMessage();
+    };
+
+    window.addEventListener('custom-send', handleCustomSend);
+    return () => {
+      window.removeEventListener('custom-send', handleCustomSend);
+    };
+  }, [message]); // Include message in dependencies since handleSendMessage uses it
+
   return (
     <div className="p-4 border-t">
       <div className="relative glass-card rounded-lg">
