@@ -27,6 +27,7 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
+        // First, attempt to sign up
         const { error: signUpError, data } = await supabase.auth.signUp({
           email,
           password,
@@ -40,10 +41,20 @@ export default function Auth() {
 
         if (signUpError) throw signUpError;
 
-        toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
+        // After successful signup, attempt to sign in immediately
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
         });
+
+        if (signInError) throw signInError;
+
+        toast({
+          title: "Welcome to SimplyMind!",
+          description: "Your account has been created and you're now logged in.",
+        });
+        
+        navigate("/");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
