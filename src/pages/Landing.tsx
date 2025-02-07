@@ -51,7 +51,7 @@ export const Landing = () => {
             className="mt-8"
             asChild
           >
-            <a href={content.hero.cta_link}>{content.hero.cta_text}</a>
+            <a href="/auth">{content.hero.cta_text}</a>
           </Button>
         </header>
       </ScrollReveal>
