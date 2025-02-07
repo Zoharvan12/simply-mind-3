@@ -109,14 +109,20 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   },
 
   sendMessage: async (content: string) => {
-    const { currentChatId } = get();
-    if (!currentChatId) {
+    const { currentChatId, messages } = get();
+    let chatId = currentChatId;
+    let isFirstMessage = false;
+
+    if (!chatId) {
       try {
-        const newChatId = await get().createNewChat();
-        set({ currentChatId: newChatId });
+        chatId = await get().createNewChat();
+        set({ currentChatId: chatId });
+        isFirstMessage = true;
       } catch (error) {
         return;
       }
+    } else {
+      isFirstMessage = messages.length === 0;
     }
 
     try {
@@ -129,7 +135,7 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
       const { data: message, error: messageError } = await supabase
         .from('messages')
         .insert([{
-          chat_id: get().currentChatId,
+          chat_id: chatId,
           user_id: user.id,
           role: 'user',
           content
@@ -146,14 +152,20 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
         .invoke('chat-with-context', {
           body: {
             content,
-            chatId: get().currentChatId
+            chatId,
+            isFirstMessage
           }
         });
 
       if (aiError) throw aiError;
 
       // Fetch messages again to get the AI response with correct ID and timestamp
-      await get().fetchMessages(get().currentChatId!);
+      await get().fetchMessages(chatId);
+      
+      // If it was the first message, fetch chats to get the updated title
+      if (isFirstMessage) {
+        await get().fetchChats();
+      }
 
     } catch (error) {
       console.error('Error sending message:', error);

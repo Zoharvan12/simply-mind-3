@@ -16,20 +16,17 @@ interface JournalEntry {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { content, chatId } = await req.json();
+    const { content, chatId, isFirstMessage } = await req.json();
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get user ID from auth header
     const authHeader = req.headers.get('Authorization')?.split('Bearer ')[1];
     if (!authHeader) {
       throw new Error('No authorization header');
@@ -71,7 +68,45 @@ ${avgEmotionRating ? `\nUser's average emotional rating: ${avgEmotionRating.toFi
 
 Based on this context, provide supportive and relevant responses. If the user seems to be struggling emotionally, be extra empathetic and supportive. Always maintain a positive and encouraging tone while acknowledging their feelings.`;
 
-    // Make OpenAI API call
+    // If it's the first message, generate a title
+    if (isFirstMessage) {
+      const titleResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { 
+              role: 'system', 
+              content: 'Generate a short, concise title (max 50 characters) that captures the main topic or intent of this message. Return only the title, nothing else.' 
+            },
+            { role: 'user', content }
+          ],
+        }),
+      });
+
+      if (!titleResponse.ok) {
+        throw new Error('Failed to generate title');
+      }
+
+      const titleData = await titleResponse.json();
+      const generatedTitle = titleData.choices[0].message.content.trim();
+
+      // Update chat title
+      const { error: updateError } = await supabase
+        .from('chats')
+        .update({ title: generatedTitle })
+        .eq('id', chatId);
+
+      if (updateError) {
+        console.error('Error updating chat title:', updateError);
+      }
+    }
+
+    // Get AI response
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
