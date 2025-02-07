@@ -8,12 +8,14 @@ interface MessagesState {
   currentChatId: string | null;
   messageCount: number;
   messages: any[];
+  isLoading: boolean;
   fetchChats: () => Promise<void>;
   createNewChat: () => Promise<string>;
   fetchMessages: (chatId: string) => Promise<void>;
   renameChat: (chatId: string, newTitle: string) => Promise<void>;
   deleteChat: (chatId: string) => Promise<void>;
   updateChat: (chat: Chat) => void;
+  sendMessage: (content: string) => Promise<void>;
 }
 
 export const useMessagesStore = create<MessagesState>((set, get) => ({
@@ -21,6 +23,7 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
   currentChatId: null,
   messageCount: 0,
   messages: [],
+  isLoading: false,
 
   fetchChats: async () => {
     try {
@@ -64,6 +67,7 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
 
   fetchMessages: async (chatId: string) => {
     try {
+      set({ isLoading: true });
       const { data: messages, error } = await supabase
         .from('messages')
         .select('*')
@@ -82,11 +86,13 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       set({ 
         messages: messages || [],
         currentChatId: chatId,
-        messageCount: monthlyCount?.length || 0
+        messageCount: monthlyCount?.length || 0,
+        isLoading: false
       });
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast.error('Failed to fetch messages');
+      set({ isLoading: false });
     }
   },
 
@@ -128,4 +134,34 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
       chats: state.chats.map(c => c.id === chat.id ? chat : c)
     }));
   },
+
+  sendMessage: async (content: string) => {
+    const currentChatId = get().currentChatId;
+    if (!currentChatId) {
+      toast.error('No chat selected');
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error: insertError } = await supabase
+        .from('messages')
+        .insert({
+          chat_id: currentChatId,
+          role: 'user',
+          content,
+          user_id: user.id
+        });
+
+      if (insertError) throw insertError;
+
+      // Refresh messages to update the count and display
+      await get().fetchMessages(currentChatId);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
+    }
+  }
 }));

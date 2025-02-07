@@ -3,15 +3,15 @@ import { ChatList } from "./ChatList";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
 import { useMessagesStore } from "@/stores/useMessagesStore";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Progress } from "@/components/ui/progress";
 
 export const ChatInterface = () => {
   const { chats, currentChatId, messageCount } = useMessagesStore();
+  const { role } = useUserRole();
   
   const currentChat = chats.find(chat => chat.id === currentChatId);
   const chatTitle = currentChat?.title || "Chat Assistant";
-  const messageLimit = 50;
-  const progress = (messageCount / messageLimit) * 100;
 
   return (
     <ResizablePanelGroup
@@ -28,11 +28,15 @@ export const ChatInterface = () => {
         <div className="flex flex-col h-full">
           <div className="border-b px-4 py-3">
             <h2 className="text-base font-medium text-[#2A3D66] mb-2">{chatTitle}</h2>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>Monthly message limit</span>
-              <span>{messageCount}/{messageLimit} messages</span>
-            </div>
-            <Progress value={progress} className="h-1 mt-1" />
+            {role === 'free' && (
+              <div>
+                <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
+                  <span>Monthly message limit</span>
+                  <span>{messageCount}/50 messages</span>
+                </div>
+                <Progress value={(messageCount / 50) * 100} className="h-1" />
+              </div>
+            )}
           </div>
           <div className="flex-1 min-h-0">
             <ChatMessages />
