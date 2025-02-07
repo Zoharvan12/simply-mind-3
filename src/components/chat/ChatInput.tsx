@@ -146,15 +146,11 @@ export const ChatInput = () => {
         <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 
             size="icon" 
-            variant={isRecording ? "destructive" : "ghost"}
+            variant="ghost"
             onClick={toggleRecording}
-            className={`transition-all duration-200 ${isRecording ? 'animate-pulse' : ''}`}
+            className={`transition-all duration-200 ${isRecording ? 'border-2 border-red-500 text-red-500 hover:text-red-600 hover:border-red-600' : ''}`}
           >
-            {isRecording ? (
-              <MicOff className="h-5 w-5 text-white" />
-            ) : (
-              <Mic className="h-5 w-5 text-neutral-500" />
-            )}
+            <Mic className="h-5 w-5" />
           </Button>
           <Button 
             size="icon"

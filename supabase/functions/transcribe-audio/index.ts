@@ -57,7 +57,10 @@ serve(async (req) => {
     const blob = new Blob([binaryAudio], { type: 'audio/webm' })
     formData.append('file', blob, 'audio.webm')
     formData.append('model', 'whisper-1')
-
+    formData.append('response_format', 'json')
+    
+    console.log('Sending audio to Whisper API...')
+    
     // Send to OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
@@ -68,10 +71,13 @@ serve(async (req) => {
     })
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${await response.text()}`)
+      const errorText = await response.text()
+      console.error('Whisper API error:', errorText)
+      throw new Error(`OpenAI API error: ${errorText}`)
     }
 
     const result = await response.json()
+    console.log('Transcription result:', result)
 
     return new Response(
       JSON.stringify({ text: result.text }),
@@ -79,6 +85,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('Error in transcribe-audio function:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
