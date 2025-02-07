@@ -21,8 +21,14 @@ export const ChatInput = () => {
 
   const handleEnterCommand: Command = {
     name: 'send-message',
-    execute: () => {
-      handleSendMessage();
+    execute: (api) => {
+      const currentEvent = api.originalEvent as KeyboardEvent;
+      if (currentEvent.key === 'Enter' && !currentEvent.shiftKey) {
+        currentEvent.preventDefault();
+        handleSendMessage();
+        return true;
+      }
+      return false;
     },
     keyCommand: 'enter',
   };
