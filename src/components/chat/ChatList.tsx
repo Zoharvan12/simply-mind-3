@@ -64,15 +64,15 @@ export const ChatList = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-none p-4">
+    <div className="flex h-full flex-col">
+      <div className="p-4">
         <Button className="w-full bg-gradient-elegant" size="lg" onClick={handleNewChat}>
           <Plus className="mr-2" />
           New Chat
         </Button>
       </div>
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-2">
+      <ScrollArea className="flex-1 px-4">
+        <div className="space-y-2">
           {chats.map((chat) => (
             <div 
               key={chat.id}

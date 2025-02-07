@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Mic, Send } from "lucide-react";
-import { useState } from "react";
+import { KeyboardEvent, useState } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
@@ -17,8 +17,15 @@ export const ChatInput = () => {
     }
   };
 
+  const handleKeyPress = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   return (
-    <div className="p-4">
+    <div className="p-4 border-t">
       <div className="relative glass-card rounded-lg">
         <ReactMde
           value={message}
@@ -30,14 +37,9 @@ export const ChatInput = () => {
           toolbarCommands={[]}
           classes={{
             reactMde: "border-none bg-transparent",
-            textArea: "bg-transparent border-none focus:outline-none min-h-[60px] max-h-[120px]"
+            textArea: "bg-transparent border-none focus:outline-none"
           }}
-          onPressCommandKey={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSendMessage();
-            }
-          }}
+          onKeyPress={handleKeyPress}
         />
         <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 
