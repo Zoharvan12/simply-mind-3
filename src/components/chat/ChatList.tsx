@@ -77,54 +77,57 @@ export const ChatList = () => {
             <div 
               key={chat.id}
               className={cn(
-                "glass-card p-3 group relative cursor-pointer hover:shadow-md transition-shadow",
+                "glass-card p-3 group relative cursor-pointer hover:shadow-md transition-shadow min-h-[70px]",
                 currentChatId === chat.id && "border-2 border-primary"
               )}
               onClick={(e) => {
-                // Only fetch messages if we didn't click on an action button
                 if (!(e.target as HTMLElement).closest('.chat-actions')) {
                   fetchMessages(chat.id);
                 }
               }}
             >
-              {editingChatId === chat.id ? (
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  onBlur={() => handleRename(chat.id)}
-                  onKeyDown={(e) => handleKeyDown(e, chat.id)}
-                  className="w-full bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-primary rounded px-1"
-                  autoFocus
-                />
-              ) : (
-                <>
-                  <h3 className="font-medium text-sm text-neutral-700">{chat.title}</h3>
-                  <p className="text-xs text-neutral-500 mt-1 truncate">
-                    {new Date(chat.created_at).toLocaleDateString()}
-                  </p>
-                  <div className="chat-actions absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        startEditing(chat);
-                      }}
-                      className="p-1 rounded-sm hover:bg-primary/10 transition-colors"
-                    >
-                      <Edit2 className="h-5 w-5 text-primary/70 hover:text-primary transition-colors" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeletingChatId(chat.id);
-                      }}
-                      className="p-1 rounded-sm hover:bg-red-100 transition-colors"
-                    >
-                      <Trash2 className="h-5 w-5 text-red-500/70 hover:text-red-500 transition-colors" />
-                    </button>
-                  </div>
-                </>
-              )}
+              <div className="flex justify-between items-start">
+                <div className="flex-1 pr-20"> {/* Add padding to prevent text overlap with buttons */}
+                  {editingChatId === chat.id ? (
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onBlur={() => handleRename(chat.id)}
+                      onKeyDown={(e) => handleKeyDown(e, chat.id)}
+                      className="w-full bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-primary rounded px-1"
+                      autoFocus
+                    />
+                  ) : (
+                    <>
+                      <h3 className="font-medium text-sm text-neutral-700">{chat.title}</h3>
+                      <p className="text-xs text-neutral-500 mt-1 truncate">
+                        {new Date(chat.created_at).toLocaleDateString()}
+                      </p>
+                    </>
+                  )}
+                </div>
+                <div className="chat-actions absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEditing(chat);
+                    }}
+                    className="p-1 rounded-sm hover:bg-primary/10 transition-colors"
+                  >
+                    <Edit2 className="h-5 w-5 text-primary/70 hover:text-primary transition-colors" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeletingChatId(chat.id);
+                    }}
+                    className="p-1 rounded-sm hover:bg-red-100 transition-colors"
+                  >
+                    <Trash2 className="h-5 w-5 text-red-500/70 hover:text-red-500 transition-colors" />
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>

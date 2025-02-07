@@ -13,11 +13,11 @@ export const ChatInput = () => {
   const handleSendMessage = async () => {
     if (message.trim()) {
       await sendMessage(message.trim());
-      setMessage("");
+      setMessage(""); // Clear input after sending
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleEnterPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -39,7 +39,12 @@ export const ChatInput = () => {
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
           }}
-          onKeyDown={handleKeyPress}
+          paste={{
+            saveImage: async () => {
+              return "";
+            }
+          }}
+          onPressCommandKey={handleEnterPress}
         />
         <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 
