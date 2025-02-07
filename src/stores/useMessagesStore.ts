@@ -3,7 +3,6 @@ import { create } from 'zustand';
 import { MessagesState, Message, Chat } from './messages/types';
 import { createNewChat, fetchChats, renameChat, deleteChat } from './messages/chatOperations';
 import { fetchMessages, sendMessage } from './messages/messageOperations';
-import { supabase } from '@/integrations/supabase/client';
 
 interface MessagesStore extends MessagesState {
   setMessages: (messages: Message[]) => void;
@@ -17,9 +16,6 @@ interface MessagesStore extends MessagesState {
   sendMessage: (content: string) => Promise<void>;
   renameChat: (chatId: string, newTitle: string) => Promise<void>;
   deleteChat: (chatId: string) => Promise<void>;
-  monthlyMessages: number;
-  setMonthlyMessages: (count: number) => void;
-  isLimitReached: boolean;
 }
 
 export const useMessagesStore = create<MessagesStore>((set, get) => ({
@@ -27,17 +23,11 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   chats: [],
   currentChatId: null,
   isLoading: false,
-  monthlyMessages: 0,
-  isLimitReached: false,
   
   setMessages: (messages) => set({ messages }),
   setChats: (chats) => set({ chats }),
   setCurrentChatId: (chatId) => set({ currentChatId: chatId }),
   addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
-  setMonthlyMessages: (count) => set({ 
-    monthlyMessages: count,
-    isLimitReached: count >= 50
-  }),
   
   updateChat: (updatedChat) => {
     console.log('Updating chat in store:', updatedChat);
@@ -70,14 +60,9 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   },
 
   sendMessage: async (content: string) => {
-    const { currentChatId, messages, addMessage, monthlyMessages } = get();
+    const { currentChatId, messages, addMessage } = get();
     let chatId = currentChatId;
     let isFirstMessage = false;
-
-    // Check message limit before sending
-    if (monthlyMessages >= 50) {
-      throw new Error('policy');
-    }
 
     if (!chatId) {
       try {
@@ -158,46 +143,3 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   },
 }));
 
-// Set up real-time subscription for message count updates
-if (typeof window !== 'undefined') {
-  const setupRealtimeSubscription = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    // Fetch initial message count
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('monthly_messages')
-      .eq('id', user.id)
-      .single();
-
-    if (profile) {
-      useMessagesStore.getState().setMonthlyMessages(profile.monthly_messages);
-    }
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('profile_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles',
-          filter: `id=eq.${user.id}`
-        },
-        (payload) => {
-          if (payload.new && 'monthly_messages' in payload.new) {
-            useMessagesStore.getState().setMonthlyMessages(payload.new.monthly_messages);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      channel.unsubscribe();
-    };
-  };
-
-  setupRealtimeSubscription();
-}
