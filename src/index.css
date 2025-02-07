@@ -44,9 +44,7 @@
 }
 
 .glass-card {
-  @apply bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl p-4 
-         transition-all duration-300 hover:bg-white/50 hover:shadow-lg 
-         hover:border-white/30 hover:scale-[1.02];
+  @apply bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl p-4;
 }
 
 .glass-card.selected {
@@ -93,4 +91,3 @@
   direction: ltr;
   text-align: left;
 }
-
