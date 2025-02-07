@@ -1,3 +1,4 @@
+
 import { Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -8,6 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useCallback } from "react";
+import { toast } from "sonner";
 
 interface SubscriptionCardProps {
   role: string;
@@ -16,6 +20,38 @@ interface SubscriptionCardProps {
 }
 
 export const SubscriptionCard = ({ role, messageCount, daysUntilReset }: SubscriptionCardProps) => {
+  const handleUpgrade = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error("Please sign in to upgrade");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-subscription', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Subscription error:', error);
+        toast.error("Failed to start upgrade process");
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error("Failed to create checkout session");
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("An unexpected error occurred");
+    }
+  }, []);
+
   return (
     <Card>
       <CardHeader>
@@ -37,7 +73,11 @@ export const SubscriptionCard = ({ role, messageCount, daysUntilReset }: Subscri
               <p className="text-sm text-neutral-500 capitalize">{role}</p>
             </div>
             {role !== 'premium' && (
-              <Button variant="default" className="bg-primary hover:bg-primary/90">
+              <Button 
+                variant="default" 
+                className="bg-primary hover:bg-primary/90"
+                onClick={handleUpgrade}
+              >
                 Upgrade to Premium
               </Button>
             )}
