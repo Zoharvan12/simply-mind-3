@@ -58,3 +58,17 @@
 .backdrop-blur-sm {
   backdrop-filter: blur(8px);
 }
+
+/* Chat UI specific styles */
+.chat-message-user {
+  @apply bg-primary text-white rounded-2xl rounded-tr-sm;
+}
+
+.chat-message-ai {
+  @apply bg-white/90 text-neutral-800 rounded-2xl rounded-tl-sm;
+}
+
+.chat-input {
+  @apply focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-200;
+}
+
