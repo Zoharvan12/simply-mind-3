@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import { AudioRecorder } from "./AudioRecorder";
 import { MessageComposer } from "./MessageComposer";
