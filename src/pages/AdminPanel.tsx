@@ -159,7 +159,11 @@ const AdminPanel = () => {
 
   const handleUserRemoval = async (userId: string) => {
     try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+      // Use our new secure RPC function instead of the direct auth.admin call
+      const { error } = await supabase.rpc('delete_user', {
+        user_id_to_delete: userId
+      });
+
       if (error) throw error;
 
       toast({

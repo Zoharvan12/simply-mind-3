@@ -95,6 +95,12 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      delete_user: {
+        Args: {
+          user_id_to_delete: string
+        }
+        Returns: boolean
+      }
       get_admin_user_list: {
         Args: Record<PropertyKey, never>
         Returns: {
