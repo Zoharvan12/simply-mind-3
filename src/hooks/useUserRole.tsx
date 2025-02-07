@@ -29,41 +29,25 @@ export function useUserRole() {
           return;
         }
 
-        // Get user role with error handling
-        const { data: roleData, error: rpcError } = await supabase
-          .rpc('check_user_role', {
-            user_id: user.id
-          });
+        // Get user role from user_roles table directly
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
 
-        if (rpcError) {
-          console.error('RPC Error:', rpcError);
+        if (roleError) {
+          console.error('Role Error:', roleError);
           throw new Error('Failed to fetch user role');
         }
-        
-        // Validate role data
-        if (!roleData || !isValidUserRole(roleData)) {
+
+        if (!roleData || !isValidUserRole(roleData.role)) {
           console.error('Invalid role received:', roleData);
           throw new Error('Invalid role received from server');
         }
 
-        // Set the validated role
-        setRole(roleData);
-        
-        // Strict admin check
-        const isUserAdmin = roleData === 'admin';
-        setIsAdmin(isUserAdmin);
-
-        // Additional verification for admin status
-        if (isUserAdmin) {
-          const { data: adminCheck, error: adminError } = await supabase
-            .rpc('is_admin');
-            
-          if (adminError || !adminCheck) {
-            console.error('Admin verification failed:', adminError);
-            setIsAdmin(false);
-            throw new Error('Admin verification failed');
-          }
-        }
+        setRole(roleData.role);
+        setIsAdmin(roleData.role === 'admin');
 
       } catch (err: any) {
         console.error('Error in useUserRole:', err);
