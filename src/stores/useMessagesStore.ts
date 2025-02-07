@@ -29,6 +29,8 @@ interface MessagesStore {
   fetchChats: () => Promise<void>;
   fetchMessages: (chatId: string) => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
+  renameChat: (chatId: string, newTitle: string) => Promise<void>;
+  deleteChat: (chatId: string) => Promise<void>;
 }
 
 export const useMessagesStore = create<MessagesStore>((set, get) => ({
@@ -44,7 +46,6 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   
   createNewChat: async () => {
     try {
-      // Get the current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('User not authenticated');
@@ -119,13 +120,11 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     }
 
     try {
-      // Get the current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('User not authenticated');
       }
 
-      // Send user message
       const { data: message, error: messageError } = await supabase
         .from('messages')
         .insert([{
@@ -141,7 +140,6 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
 
       set((state) => ({ messages: [...state.messages, message] }));
 
-      // Simulate AI response (replace with actual AI integration later)
       const { data: aiMessage, error: aiError } = await supabase
         .from('messages')
         .insert([{
@@ -158,6 +156,52 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
+    }
+  },
+
+  renameChat: async (chatId: string, newTitle: string) => {
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .update({ title: newTitle })
+        .eq('id', chatId);
+
+      if (error) throw error;
+
+      set((state) => ({
+        chats: state.chats.map(chat => 
+          chat.id === chatId ? { ...chat, title: newTitle } : chat
+        )
+      }));
+
+      toast.success('Chat renamed successfully');
+    } catch (error) {
+      console.error('Error renaming chat:', error);
+      toast.error('Failed to rename chat');
+    }
+  },
+
+  deleteChat: async (chatId: string) => {
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .delete()
+        .eq('id', chatId);
+
+      if (error) throw error;
+
+      set((state) => ({
+        chats: state.chats.filter(chat => chat.id !== chatId),
+        ...(state.currentChatId === chatId ? {
+          currentChatId: null,
+          messages: []
+        } : {})
+      }));
+
+      toast.success('Chat deleted successfully');
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      toast.error('Failed to delete chat');
     }
   },
 }));
