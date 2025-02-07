@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import type { Command } from "react-mde";
+import type { TextApi } from "react-mde";
 
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
@@ -19,15 +19,22 @@ export const ChatInput = () => {
     }
   };
 
-  const handleEnterCommand: Command = {
-    name: 'send-message',
-    execute: (options) => {
-      if (options.event?.key === 'Enter' && !options.event?.shiftKey) {
-        options.event.preventDefault();
+  const handleEnterCommand = {
+    execute: (api: TextApi) => {
+      const textarea = api.textAreaRef;
+      if (textarea) {
+        const event = textarea.ownerDocument.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
         handleSendMessage();
       }
     },
-    keyCommand: 'enter',
+    handleKeyCommand: (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+        return true;
+      }
+      return false;
+    }
   };
 
   return (
@@ -42,7 +49,7 @@ export const ChatInput = () => {
           }
           toolbarCommands={[]}
           commands={{
-            'send-message': handleEnterCommand
+            'enter': handleEnterCommand
           }}
           classes={{
             reactMde: "border-none bg-transparent",
