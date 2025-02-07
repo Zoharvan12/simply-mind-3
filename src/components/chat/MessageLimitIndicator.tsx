@@ -25,32 +25,45 @@ export const MessageLimitIndicator = () => {
       }
     };
 
-    fetchMessageCount();
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    // Subscribe to realtime changes for the profiles table
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const channel = supabase
-      .channel('profile_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'profiles',
-          filter: `id=eq.${user.id}`
-        },
-        (payload) => {
-          if (payload.new && 'monthly_messages' in payload.new) {
-            setMonthlyMessages(payload.new.monthly_messages);
+      const channel = supabase
+        .channel('profile_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${user.id}`
+          },
+          (payload) => {
+            if (payload.new && 'monthly_messages' in payload.new) {
+              setMonthlyMessages(payload.new.monthly_messages);
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+
+      return channel;
+    };
+
+    // Initialize both the message count and realtime subscription
+    fetchMessageCount();
+    let channel: ReturnType<typeof supabase.channel>;
+    
+    setupRealtimeSubscription().then(subscribedChannel => {
+      if (subscribedChannel) {
+        channel = subscribedChannel;
+      }
+    });
 
     return () => {
-      channel.unsubscribe();
+      if (channel) {
+        channel.unsubscribe();
+      }
     };
   }, [role]);
 
