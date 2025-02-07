@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus } from "lucide-react";
@@ -19,7 +18,6 @@ export const ChatList = () => {
   useEffect(() => {
     fetchChats();
 
-    // Set up real-time subscription for chat updates
     const channel = supabase
       .channel('public:chats')
       .on(
@@ -39,20 +37,13 @@ export const ChatList = () => {
           }
         }
       )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-        if (status === 'SUBSCRIBED') {
-          console.log('Successfully subscribed to chat updates');
-        }
-      });
+      .subscribe();
 
     return () => {
-      console.log('Cleaning up chat subscription');
       supabase.removeChannel(channel);
     };
   }, [fetchChats, updateChat]);
 
-  // Type guard to validate chat payload
   const isValidChat = (chat: any): chat is Chat => {
     return (
       typeof chat === 'object' &&
@@ -112,7 +103,7 @@ export const ChatList = () => {
           New Chat
         </Button>
       </div>
-      <ScrollArea className="flex-1 px-2">
+      <ScrollArea className="flex-1">
         <div className="space-y-2 pb-4">
           {chats.map((chat) => (
             <ChatListItem

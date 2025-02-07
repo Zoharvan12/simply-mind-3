@@ -43,7 +43,7 @@
 }
 
 .glass-card {
-  @apply bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl p-4 overflow-hidden;
+  @apply bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden;
 }
 
 .glass-card.selected {

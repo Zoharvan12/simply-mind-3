@@ -31,7 +31,7 @@ export const ChatListItem = ({
     <div 
       key={chat.id}
       className={cn(
-        "glass-card group relative cursor-pointer py-3 w-full max-w-full",
+        "glass-card group mx-2 relative cursor-pointer py-3 mb-2",
         currentChatId === chat.id && "selected"
       )}
       onClick={(e) => {
@@ -53,11 +53,11 @@ export const ChatListItem = ({
         />
       ) : (
         <div className="flex items-start justify-between w-full px-2">
-          <div className="flex-1 min-w-0 pr-14"> {/* Increased right padding to prevent overlap */}
-            <h3 className="font-medium text-sm text-neutral-700 truncate max-w-full">
+          <div className="flex-1 min-w-0 pr-14">
+            <h3 className="font-medium text-sm text-neutral-700 truncate">
               {chat.title}
             </h3>
-            <p className="text-xs text-neutral-500 mt-1 truncate max-w-full">
+            <p className="text-xs text-neutral-500 mt-1 truncate">
               {new Date(chat.created_at).toLocaleDateString(undefined, {
                 year: 'numeric',
                 month: 'short',
