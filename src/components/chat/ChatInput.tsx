@@ -25,7 +25,7 @@ export const ChatInput = () => {
   };
 
   return (
-    <div className="p-4 border-t">
+    <div className="p-4">
       <div className="relative glass-card rounded-lg">
         <ReactMde
           value={message}
@@ -37,7 +37,7 @@ export const ChatInput = () => {
           toolbarCommands={[]}
           classes={{
             reactMde: "border-none bg-transparent",
-            textArea: "bg-transparent border-none focus:outline-none"
+            textArea: "bg-transparent border-none focus:outline-none min-h-[60px] max-h-[120px]"
           }}
           onKeyPress={handleKeyPress}
         />
