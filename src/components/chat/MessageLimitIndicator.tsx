@@ -27,7 +27,10 @@ export const MessageLimitIndicator = () => {
 
     fetchMessageCount();
 
-    // Subscribe to realtime changes
+    // Subscribe to realtime changes for the profiles table
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
     const channel = supabase
       .channel('profile_changes')
       .on(
@@ -35,11 +38,11 @@ export const MessageLimitIndicator = () => {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'profiles'
+          table: 'profiles',
+          filter: `id=eq.${user.id}`
         },
-        async (payload) => {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (payload.new.id === user?.id) {
+        (payload) => {
+          if (payload.new && 'monthly_messages' in payload.new) {
             setMonthlyMessages(payload.new.monthly_messages);
           }
         }
