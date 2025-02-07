@@ -92,6 +92,27 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_page_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          section: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          section: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          section?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           chat_id: string
