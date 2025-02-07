@@ -36,9 +36,7 @@ export const ChatInput = () => {
             Promise.resolve(markdown)
           }
           toolbarCommands={[]}
-          textAreaProps={{
-            onKeyDown: handleKeyDown
-          }}
+          onKeyDown={handleKeyDown}
           classes={{
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
