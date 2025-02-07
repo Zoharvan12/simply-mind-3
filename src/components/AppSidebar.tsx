@@ -1,6 +1,6 @@
 
-import { Home, MessageSquare, BarChart2, Settings, Shield } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Home, MessageSquare, BarChart2, Settings, Shield, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +12,8 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useUserRole } from "@/hooks/useUserRole";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const menuItems = [
   {
@@ -33,6 +35,18 @@ const menuItems = [
 
 export function AppSidebar() {
   const { role, isAdmin } = useUserRole();
+  const navigate = useNavigate();
+  
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Signed out successfully");
+      navigate("/auth");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error("Failed to sign out");
+    }
+  };
   
   return (
     <Sidebar>
@@ -98,8 +112,16 @@ export function AppSidebar() {
                 <Settings className="h-5 w-5" />
                 <span>Settings</span>
               </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleSignOut}>
+              <div className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900">
+                <LogOut className="h-5 w-5" />
+                <span>Sign Out</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
