@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useMessagesStore } from "@/stores/useMessagesStore";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import { HandleKeyCommand } from "react-mde/lib/definitions/types";
+import { HandleKeyCommand, ExecuteOptions } from "react-mde/lib/definitions/types";
 
 export const ChatInput = () => {
   const [message, setMessage] = useState("");
