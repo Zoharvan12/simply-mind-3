@@ -57,41 +57,23 @@ const AdminPanel = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch statistics
+      // Fetch statistics using the updated RPC function
       const { data: statsData, error: statsError } = await supabase.rpc('get_user_statistics');
       if (statsError) throw statsError;
       setStats(statsData as UserStats);
 
-      // Fetch users
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select(`
-          id,
-          first_name,
-          last_name,
-          email:auth_users(email),
-          role:user_roles(role),
-          created_at:auth_users(created_at)
-        `)
-        .returns<{
-          id: string;
-          first_name: string | null;
-          last_name: string | null;
-          email: { email: string }[];
-          role: { role: 'free' | 'premium' | 'admin' }[];
-          created_at: { created_at: string }[];
-        }[]>();
-
-      if (profilesError) throw profilesError;
+      // Fetch users using the new admin_user_list function
+      const { data: userData, error: userError } = await supabase.rpc('get_admin_user_list');
+      if (userError) throw userError;
 
       // Transform the data to match our UserData interface
-      const formattedUsers: UserData[] = profiles.map((profile) => ({
-        id: profile.id,
-        email: profile.email[0]?.email ?? '',
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        role: profile.role[0]?.role ?? 'free',
-        created_at: profile.created_at[0]?.created_at ?? new Date().toISOString(),
+      const formattedUsers: UserData[] = userData.map((user) => ({
+        id: user.id,
+        email: user.email || '',
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: (user.role || 'free') as 'free' | 'premium' | 'admin',
+        created_at: user.created_at,
       }));
 
       setUsers(formattedUsers);
@@ -161,6 +143,10 @@ const AdminPanel = () => {
       (user.last_name?.toLowerCase() || '').includes(searchTerm)
     );
   });
+
+  if (isLoading) {
+    return <MainLayout>Loading...</MainLayout>;
+  }
 
   return (
     <MainLayout>
