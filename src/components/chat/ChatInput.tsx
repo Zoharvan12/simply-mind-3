@@ -12,12 +12,13 @@ export const ChatInput = () => {
 
   const handleSendMessage = async () => {
     if (message.trim()) {
-      await sendMessage(message.trim());
-      setMessage("");
+      const currentMessage = message.trim();
+      setMessage(""); // Clear input immediately
+      await sendMessage(currentMessage);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -39,7 +40,10 @@ export const ChatInput = () => {
             reactMde: "border-none bg-transparent",
             textArea: "bg-transparent border-none focus:outline-none"
           }}
-          onKeyDown={handleKeyPress}
+        />
+        <textarea
+          className="hidden"
+          onKeyPress={handleKeyPress}
         />
         <div className="absolute right-2 bottom-2 flex gap-2">
           <Button 
