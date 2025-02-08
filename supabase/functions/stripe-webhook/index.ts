@@ -13,11 +13,26 @@ const supabaseClient = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
 );
 
+// Add CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   try {
     const signature = req.headers.get('stripe-signature');
     if (!signature) {
-      return new Response('No signature', { status: 400 });
+      console.error('No Stripe signature found in webhook request');
+      return new Response('No signature', { 
+        status: 400,
+        headers: corsHeaders
+      });
     }
 
     const body = await req.text();
@@ -31,50 +46,105 @@ serve(async (req) => {
       );
     } catch (err) {
       console.error(`Webhook signature verification failed:`, err.message);
-      return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+      return new Response(`Webhook Error: ${err.message}`, { 
+        status: 400,
+        headers: corsHeaders
+      });
     }
 
-    console.log('Processing webhook event:', event.type);
+    console.log('Processing webhook event:', event.type, 'Event ID:', event.id);
 
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+        console.log('Checkout session completed:', session.id);
         
-        await supabaseClient
-          .from('subscriptions')
-          .update({
-            stripe_subscription_id: subscription.id,
-            status: subscription.status,
-          })
-          .eq('stripe_customer_id', session.customer);
+        try {
+          // First try to get subscription from session
+          let subscription;
+          if (session.subscription) {
+            console.log('Retrieving subscription from session:', session.subscription);
+            subscription = await stripe.subscriptions.retrieve(session.subscription);
+          } else {
+            // If no subscription in session, search by customer
+            console.log('Searching for subscription by customer:', session.customer);
+            const subscriptions = await stripe.subscriptions.list({
+              customer: session.customer,
+              limit: 1,
+              status: 'active',
+            });
+            
+            if (subscriptions.data.length > 0) {
+              subscription = subscriptions.data[0];
+              console.log('Found subscription:', subscription.id);
+            } else {
+              throw new Error('No subscription found for customer');
+            }
+          }
+          
+          // Update subscription record
+          const { error: updateError } = await supabaseClient
+            .from('subscriptions')
+            .update({
+              stripe_subscription_id: subscription.id,
+              status: subscription.status,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_customer_id', session.customer);
 
+          if (updateError) {
+            console.error('Error updating subscription in database:', updateError);
+            throw updateError;
+          }
+
+          console.log('Successfully updated subscription record');
+        } catch (error) {
+          console.error('Error processing checkout.session.completed:', error);
+          throw error;
+        }
         break;
       }
 
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
+        console.log(`Subscription ${event.type}:`, subscription.id);
         
-        await supabaseClient
-          .from('subscriptions')
-          .update({
-            status: subscription.status,
-          })
-          .eq('stripe_subscription_id', subscription.id);
+        try {
+          const { error: updateError } = await supabaseClient
+            .from('subscriptions')
+            .update({
+              status: subscription.status,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_subscription_id', subscription.id);
 
+          if (updateError) {
+            console.error('Error updating subscription status:', updateError);
+            throw updateError;
+          }
+
+          console.log('Successfully updated subscription status');
+        } catch (error) {
+          console.error(`Error processing ${event.type}:`, error);
+          throw error;
+        }
         break;
       }
     }
 
+    // Send success response with CORS headers
     return new Response(JSON.stringify({ received: true }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error processing webhook:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 });
