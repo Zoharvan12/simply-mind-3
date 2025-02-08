@@ -68,10 +68,11 @@ ${avgEmotionRating ? `\nUser's average emotional rating: ${avgEmotionRating.toFi
 
 Based on this context, provide supportive and relevant responses. If the user seems to be struggling emotionally, be extra empathetic and supportive. Always maintain a positive and encouraging tone while acknowledging their feelings.`;
 
-    // If it's the first message, generate a title
+    // If it's the first message, generate both title and AI response
     if (isFirstMessage) {
-      console.log('Generating title for first message...');
+      console.log('Generating title and response for first message...');
       
+      // Generate title
       const titleResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -98,7 +99,7 @@ Based on this context, provide supportive and relevant responses. If the user se
       const generatedTitle = titleData.choices[0].message.content.trim();
       console.log('Generated title:', generatedTitle);
 
-      // Only update chat title if it's for a chat (not for journal entries)
+      // Update chat title
       if (chatId !== 'temp') {
         const { error: updateError } = await supabase
           .from('chats')
@@ -112,15 +113,53 @@ Based on this context, provide supportive and relevant responses. If the user se
         
         console.log('Successfully updated chat title');
       }
-      
-      // Return the generated title in both cases
+
+      // Generate AI response
+      const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemMessage },
+            { role: 'user', content }
+          ],
+        }),
+      });
+
+      if (!aiResponse.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const aiData = await aiResponse.json();
+      const aiMessage = aiData.choices[0].message.content;
+
+      // Store AI response in database
+      const { error: insertError } = await supabase
+        .from('messages')
+        .insert([{
+          chat_id: chatId,
+          role: 'ai',
+          content: aiMessage
+        }]);
+
+      if (insertError) {
+        throw new Error('Failed to store AI response');
+      }
+
       return new Response(
-        JSON.stringify({ message: generatedTitle }),
+        JSON.stringify({ 
+          title: generatedTitle,
+          message: aiMessage 
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get AI response
+    // For non-first messages, just get AI response
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -168,7 +207,7 @@ Based on this context, provide supportive and relevant responses. If the user se
       JSON.stringify({ error: error.message }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   }

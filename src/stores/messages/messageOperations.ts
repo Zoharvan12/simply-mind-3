@@ -60,21 +60,27 @@ export const sendMessage = async (
     if (aiError) throw aiError;
 
     // Fetch the AI message that was stored by the edge function
-    const { data: aiMessage, error: fetchAiError } = await supabase
+    const { data: aiMessages, error: fetchAiError } = await supabase
       .from('messages')
       .select('*')
       .eq('chat_id', chatId)
       .eq('role', 'ai')
       .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
 
     if (fetchAiError) throw fetchAiError;
+    
+    // Use maybeSingle equivalent by taking the first message if it exists
+    const aiMessage = aiMessages && aiMessages[0];
+    if (!aiMessage) {
+      throw new Error('Failed to fetch AI response');
+    }
 
     return { 
       userMessage, 
       aiMessage,
-      isFirstMessage 
+      isFirstMessage,
+      title: isFirstMessage ? aiResponse.title : undefined
     };
   } catch (error) {
     console.error('Error sending message:', error);
