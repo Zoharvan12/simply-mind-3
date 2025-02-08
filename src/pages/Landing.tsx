@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Background3D } from "@/components/Background3D";
 import { LandingHero } from "@/components/landing/LandingHero";
-import { Features } from "@/components/landing/Features";
 import { Pricing } from "@/components/landing/Pricing";
 
 export const Landing = () => {
@@ -49,7 +48,6 @@ export const Landing = () => {
       </motion.div>
 
       <LandingHero content={content.hero} />
-      <Features content={content.features} />
       <Pricing content={content.pricing} />
     </div>
   );
