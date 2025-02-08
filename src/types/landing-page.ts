@@ -18,11 +18,4 @@ export type LandingPageContent = {
     cta_text: string;
     cta_link: string;
   };
-  pricing: {
-    plans: Array<{
-      name: string;
-      price: string;
-      features: string[];
-    }>;
-  };
 };

@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Background3D } from "@/components/Background3D";
 import { LandingHero } from "@/components/landing/LandingHero";
-import { Pricing } from "@/components/landing/Pricing";
 
 export const Landing = () => {
   const [language, setLanguage] = useState<"en" | "he">("en");
@@ -48,7 +47,6 @@ export const Landing = () => {
       </motion.div>
 
       <LandingHero content={content.hero} />
-      <Pricing content={content.pricing} />
     </div>
   );
 };
