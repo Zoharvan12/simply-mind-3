@@ -13,6 +13,12 @@ interface PricingProps {
 }
 
 export const Pricing = ({ content }: PricingProps) => {
+  // Ensure content and plans exist before rendering
+  if (!content?.plans) {
+    console.warn('Pricing content or plans is missing');
+    return null;
+  }
+
   return (
     <ScrollReveal>
       <section className="py-24">
