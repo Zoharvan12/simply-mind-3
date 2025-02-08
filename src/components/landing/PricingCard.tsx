@@ -12,10 +12,6 @@ interface PricingCardProps {
 }
 
 export const PricingCard = ({ plan, index }: PricingCardProps) => {
-  if (!plan) {
-    return null;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -32,7 +28,7 @@ export const PricingCard = ({ plan, index }: PricingCardProps) => {
       <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
       <p className="text-4xl font-semibold mb-6">{plan.price}</p>
       <ul className="space-y-4">
-        {plan.features?.map((feature, idx) => (
+        {plan.features.map((feature, idx) => (
           <li key={idx} className="text-muted-foreground">
             {feature}
           </li>

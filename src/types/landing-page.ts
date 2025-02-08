@@ -18,6 +18,13 @@ export type LandingPageContent = {
     cta_text: string;
     cta_link: string;
   };
+  features: {
+    list: Array<{
+      title: string;
+      description: string;
+      icon: "brain" | "chart" | "book";
+    }>;
+  };
   pricing: {
     plans: Array<{
       name: string;
@@ -26,3 +33,4 @@ export type LandingPageContent = {
     }>;
   };
 };
+
